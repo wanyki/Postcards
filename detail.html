@@ -17,133 +17,187 @@
             background-color: var(--bg); 
             font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; 
             color: var(--text-main);
-            /* 手机端顶部间距减小 */
-            padding: 0 0 40px; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* 响应式导航 */
+        /* --- Header --- */
         .glass-header {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            position: sticky; top: 0; z-index: 100;
-            padding: 12px 0; margin-bottom: 20px;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            position: sticky;
+            top: 15px;
+            z-index: 1000;
+            margin: 0 auto;
+            width: 95%;
+            /* 增大页眉宽度以匹配主体 */
+            max-width: 1400px;
+        }
+
+        .header-content {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 100px;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.1rem;
+        }
+
+        .btn-back {
+            background: #fff;
+            border: 1px solid #eee;
+            color: #666;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+
+        /* --- 主容器布局 --- */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 30px 0 60px;
+        }
+
+        /* 统一响应式容器宽度 */
+        .container-wide {
+            width: 95%;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .detail-card { 
-            background: white; border-radius: 24px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.06); 
+            background: white; border-radius: 30px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.04); 
             overflow: hidden; border: none;
-            margin-bottom: 20px;
+            width: 100%;
         }
 
-        /* 图片区域响应式 */
         .image-side {
             background: #f1f3f5;
             display: flex; align-items: center; justify-content: center;
-            padding: 20px; /* 手机端减小内边距 */
+            padding: 15px; /* 减小默认内边距 */
             min-height: 350px;
         }
+
         .img-wrapper {
             position: relative;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-            border-radius: 12px; transition: transform 0.3s; cursor: zoom-in;
-            width: 100%; /* 手机端宽度占满 */
-            max-width: fit-content;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+            border-radius: 16px; 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: zoom-in;
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
+
         .img-wrapper img { 
-            width: 100%; height: auto; 
-            max-height: 70vh; /* 防止图片过长 */
-            border-radius: 12px; display: block;
+            width: 100%; 
+            height: auto; 
+            max-width: 100%;
+            max-height: 85vh; /* 允许在大屏下显示得更高 */
+            border-radius: 16px; 
+            display: block;
+            object-fit: contain;
         }
 
-        /* 信息区域响应式 */
-        .info-side { padding: 30px 20px; } /* 默认手机端边距 */
+        .img-wrapper:hover { transform: scale(1.02); }
+
+        .info-side { padding: 30px 20px; }
         
+        /* 针对大屏幕优化：扩展宽度和内边距 */
         @media (min-width: 992px) {
-            body { padding-top: 30px; }
-            .info-side { padding: 50px 45px; }
-            .image-side { padding: 40px; min-height: 550px; }
+            .info-side { padding: 50px 40px; }
+            .image-side { padding: 40px; min-height: 600px; }
         }
 
-        /* ID 标签 */
         .badge-id { 
-            font-family: "Courier New", Courier, monospace;
-            background: #2d3436; color: #ffffff;
-            padding: 5px 14px; border-radius: 8px;
-            font-size: 0.9rem; font-weight: 700;
-            display: inline-block; margin-bottom: 15px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: #f1f3f5; color: #4b5e71;
+            padding: 6px 12px; border-radius: 8px;
+            font-size: 0.85rem; font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
         }
 
         .user-region-title {
-            font-size: 1.8rem; font-weight: 800;
-            color: #1a1a1a; margin-bottom: 10px; line-height: 1.2;
+            font-size: 2rem; font-weight: 800;
+            color: #1a1a1a; margin-bottom: 15px;
+            line-height: 1.2;
         }
-        @media (min-width: 768px) { .user-region-title { font-size: 2.4rem; } }
 
-        /* 漂流盒响应式 */
         .drift-box {
-            background: #f8faff; border: 1px solid #e0e7ff;
-            border-radius: 20px; padding: 20px; margin-bottom: 25px;
+            background: #f8faff; border: 1px solid #eef2ff;
+            border-radius: 24px; padding: 20px; margin-bottom: 25px;
         }
-        .drift-line { height: 1px; background: #cbd5e1; position: relative; margin: 15px 0; }
+
+        .drift-line { height: 1px; background: #dfe7ef; position: relative; margin: 18px 0; }
         .drift-line::after {
             content: "✈️"; position: absolute; left: 50%; top: 50%;
-            transform: translate(-50%, -55%); background: #f8faff; padding: 0 8px;
+            transform: translate(-50%, -55%); background: #f8faff; padding: 0 10px; font-size: 1.1rem;
         }
 
-        /* 信息网格响应式：手机 1 列，平板 2 列 */
-        .info-grid { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 15px; 
-            margin-bottom: 25px; 
-        }
-        @media (min-width: 576px) { .info-grid { grid-template-columns: 1fr 1fr; } }
-
-        .info-item label { display: block; font-size: 0.75rem; color: #7f8c8d; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; }
-        .info-item span { font-weight: 600; color: #2c3e50; font-size: 1rem; }
-
-        /* 心情区域 */
         .note-area {
-            background: #fffdf5; border-left: 4px solid #ffeaa7;
-            padding: 15px; color: #4b4b4b; line-height: 1.7; font-size: 0.95rem;
+            background: #fffdf5; border-left: 5px solid #ffeaa7;
+            padding: 20px; color: #4a5568; line-height: 1.8; border-radius: 0 15px 15px 0;
+            font-size: 0.95rem;
         }
 
-        /* 标签 */
         .tag-pill {
-            background: white; color: var(--primary);
-            padding: 4px 10px; border-radius: 6px; margin-right: 6px;
-            margin-bottom: 8px; font-size: 0.8rem; 
-            border: 1px solid #d1d9ff; display: inline-block;
+            background: #edf2ff; color: var(--primary);
+            padding: 5px 14px; border-radius: 50px; margin: 0 8px 8px 0;
+            font-size: 0.8rem; font-weight: 600; display: inline-block;
         }
 
-        /* 模态框图片自适应 */
-        #imgModal img { width: 95%; height: auto; max-height: 90vh; }
+        #imgModal { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
+        #imgModal img { max-width: 95%; max-height: 90vh; border-radius: 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
-<header class="glass-header shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-            <span class="fs-5 me-2">📮</span>
-            <h6 class="mb-0 fw-bold d-none d-sm-block">明信片档案</h6>
-            <h6 class="mb-0 fw-bold d-block d-sm-none">档案详情</h6>
+<header class="glass-header">
+    <div class="header-content">
+        <div class="header-logo">
+            <span class="me-2">📮</span>
+            <span class="d-none d-sm-inline">明信片档案详情</span>
+            <span class="d-inline d-sm-none">档案详情</span>
         </div>
-        <a href="index.html" class="btn btn-outline-dark rounded-pill px-3 btn-sm">
-            <i class="bi bi-arrow-left"></i> 返回
+        <a href="index.html" class="btn-back">
+            <i class="bi bi-arrow-left me-1"></i> 返回主页
         </a>
     </div>
 </header>
 
-<div class="container">
-    <div id="detail-root">
-        </div>
-</div>
+<main class="main-container">
+    <div class="container-wide">
+        <div id="detail-root"></div>
+    </div>
+</main>
 
-<div id="imgModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:2000;" onclick="this.style.display='none'">
-    <img id="imgModalImg" src="" style="border-radius:8px;">
+<div id="imgModal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:2000;" onclick="this.style.display='none'">
+    <img id="imgModalImg" src="">
 </div>
 
 <script src="data.js"></script>
@@ -175,33 +229,36 @@
         root.innerHTML = `
             <div class="detail-card">
                 <div class="row g-0">
-                    <div class="col-lg-7 image-side">
+                    <div class="col-lg-8 image-side">
                         <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
-                            <img src="${card.imgFront}" alt="Postcard">
+                            <img src="${card.imgFront}" alt="Postcard Side">
                         </div>
                     </div>
 
-                    <div class="col-lg-5 info-side">
+                    <div class="col-lg-4 info-side">
                         <div class="badge-id">ID: ${card.id}</div>
                         
                         <h2 class="user-region-title">${card.person || '佚名'} - ${card.region}</h2>
                         
-                        <div class="d-flex gap-2 mb-4">
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
                             <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
                             <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
+                            <span class="ms-1 text-muted small fw-bold" style="letter-spacing:0.5px">
+                                <i class="bi bi-globe2 me-1"></i>${card.platform || '个人交换'}
+                            </span>
                         </div>
 
                         <div class="drift-box">
                             <div class="row text-center g-0">
                                 <div class="col-5">
-                                    <label>Sent</label>
+                                    <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">寄出 Sent</label>
                                     <div class="fw-bold">${card.sendDate || '—'}</div>
                                 </div>
                                 <div class="col-2 d-flex align-items-center justify-content-center">
                                     <i class="bi bi-arrow-right-short text-muted fs-4"></i>
                                 </div>
                                 <div class="col-5">
-                                    <label>Received</label>
+                                    <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">收到 Received</label>
                                     <div class="fw-bold">${card.receiveDate || '—'}</div>
                                 </div>
                             </div>
@@ -214,20 +271,9 @@
                             </div>
                         </div>
 
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <label>来源平台</label>
-                                <span><i class="bi bi-globe2 me-2"></i>${card.platform || '个人交换'}</span>
-                            </div>
-                            <div class="info-item">
-                                <label>关联人物</label>
-                                <span><i class="bi bi-person-heart me-2"></i>${card.person || '未知'}</span>
-                            </div>
-                        </div>
-
                         <div class="mb-4">
-                            <label class="small text-muted fw-bold mb-2 d-block">档案备注</label>
-                            <div class="note-area">
+                            <label class="small text-muted fw-bold mb-2 d-block" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">档案备注 Note</label>
+                            <div class="note-area shadow-sm">
                                 ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
                             </div>
                         </div>

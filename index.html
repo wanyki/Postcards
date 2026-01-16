@@ -22,39 +22,67 @@
             padding-bottom: 50px;
         }
 
-        /* 顶部统计卡片 */
-        .stat-container { display: flex; gap: 20px; margin-bottom: 25px; margin-top: 20px; }
+        /* 顶部统计卡片：移动端自动变为2x2网格 */
+        .stat-container { 
+            display: flex; 
+            gap: 15px; 
+            margin: 20px 0 25px; 
+        }
+        
+        @media (max-width: 768px) {
+            .stat-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         .stat-card {
             flex: 1;
             background: white;
             border-radius: 20px;
-            padding: 20px;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.03);
             border: 1px solid rgba(255,255,255,0.8);
         }
+
         .stat-icon {
-            width: 50px; height: 50px; border-radius: 15px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            flex-shrink: 0;
         }
-        .stat-info .label { font-size: 0.75rem; color: #8d99ae; font-weight: 600; text-transform: uppercase; }
-        .stat-info .value { font-size: 1.5rem; font-weight: 800; display: block; }
+
+        .stat-info .label { font-size: 0.7rem; color: #8d99ae; font-weight: 600; text-transform: uppercase; }
+        .stat-info .value { font-size: 1.3rem; font-weight: 800; display: block; }
 
         /* 主体布局控制 */
         .main-grid { display: flex; gap: 24px; align-items: flex-start; }
-        .content-left { flex: 1; min-width: 0; } /* 关键：防止 Echarts 溢出 */
+        .content-left { flex: 1; min-width: 0; } 
         .sidebar-right { width: 340px; flex-shrink: 0; position: sticky; top: 20px; }
+
+        /* 响应式断点：小于992px（平板/手机）侧边栏移到上方 */
+        @media (max-width: 992px) {
+            .main-grid { flex-direction: column; }
+            .sidebar-right { 
+                width: 100%; 
+                position: static; 
+                order: -1; 
+                margin-bottom: 20px;
+            }
+            .map-card { padding: 15px !important; }
+            #map-container { height: 350px !important; }
+        }
 
         /* 地图卡片 */
         .map-card {
             background: white; border-radius: 24px; padding: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 25px;
         }
         #map-container { width: 100%; height: 500px; border-radius: 16px; }
 
-        /* 侧边筛选器 */
+        /* 筛选器卡片 */
         .filter-card {
             background: #fff; border-radius: 24px; padding: 25px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02);
@@ -74,12 +102,17 @@
             border: 1px solid #f1f5f9; position: relative; height: 100%;
         }
         .postcard-item:hover { transform: translateY(-8px); box-shadow: 0 20px 30px rgba(0,0,0,0.08); }
-        .postcard-img { width: 100%; height: 200px; object-fit: cover; }
-        .card-body { padding: 18px; }
+        .postcard-img { width: 100%; height: 180px; object-fit: cover; }
+        
+        @media (min-width: 768px) {
+            .postcard-img { height: 200px; }
+        }
+
+        .card-body { padding: 15px; }
         .card-tag {
             position: absolute; top: 12px; right: 12px; padding: 5px 12px;
-            border-radius: 12px; font-size: 0.7rem; font-weight: 800; color: white;
-            z-index: 2;
+            border-radius: 12px; font-size: 0.65rem; font-weight: 800; color: white;
+            z-index: 2; text-transform: uppercase;
         }
 
         /* 按钮 */
@@ -96,18 +129,21 @@
         }
         .btn-load-more:hover { background: var(--primary); color: white; }
 
-        [v-cloak] { display: none !important; }
-
-        @media (max-width: 992px) {
-            .main-grid { flex-direction: column; }
-            .sidebar-right { width: 100%; position: static; }
-            .stat-container { flex-wrap: wrap; }
+        /* 针对手机端优化画廊列数：一行两个 */
+        @media (max-width: 576px) {
+            .row.g-2 { --bs-gutter-x: 10px; --bs-gutter-y: 10px; }
+            .postcard-img { height: 140px; }
+            .card-body { padding: 10px; }
+            .card-body h6 { font-size: 0.85rem; }
+            .card-body .small { font-size: 0.7rem !important; }
         }
+
+        [v-cloak] { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="app" class="container-fluid px-lg-5" v-cloak>
+<div id="app" class="container-fluid px-2 px-md-4 px-lg-5" v-cloak>
     <div class="stat-container">
         <div class="stat-card">
             <div class="stat-icon" style="background: rgba(67, 97, 238, 0.1); color: var(--primary);"><i class="fa-solid fa-layer-group"></i></div>
@@ -131,30 +167,31 @@
         <div class="content-left">
             <div class="map-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-800 m-0"><i class="fa-solid fa-map-marked-alt me-2 text-primary"></i>足迹热力分布</h5>
+                    <h5 class="fw-bold m-0"><i class="fa-solid fa-map-marked-alt me-2 text-primary"></i>足迹热力分布</h5>
                     <div class="btn-group btn-group-sm rounded-pill overflow-hidden border">
-                        <button class="btn px-4" :class="mapType === 'china' ? 'btn-primary' : 'btn-light'" @click="toggleMap('china')">国内</button>
-                        <button class="btn px-4" :class="mapType === 'world' ? 'btn-primary' : 'btn-light'" @click="toggleMap('world')">全球</button>
+                        <button class="btn px-3 px-md-4" :class="mapType === 'china' ? 'btn-primary' : 'btn-light'" @click="toggleMap('china')">国内</button>
+                        <button class="btn px-3 px-md-4" :class="mapType === 'world' ? 'btn-primary' : 'btn-light'" @click="toggleMap('world')">全球</button>
                     </div>
                 </div>
                 <div id="map-container"></div>
             </div>
 
             <div class="d-flex justify-content-between align-items-end mb-4 px-2">
-                <h4 class="fw-800 m-0">🖼️ 记忆画廊 <small class="text-muted fs-6 fw-normal ms-2">Matching {{ totalFilteredCount }} items</small></h4>
+                <h4 class="fw-bold m-0">🖼️ 记忆画廊</h4>
+                <small class="text-muted fw-normal">Matching {{ totalFilteredCount }} items</small>
             </div>
 
-            <div class="row g-4">
-                <div class="col-sm-6 col-xl-4" v-for="card in displayCards" :key="card.id">
+            <div class="row g-2 g-md-4">
+                <div class="col-6 col-md-6 col-xl-4" v-for="card in displayCards" :key="card.id">
                     <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none text-reset">
-                        <div class="postcard-item">
-                            <div class="card-tag shadow-sm" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
+                        <div class="postcard-item shadow-sm">
+                            <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
                             <img :src="card.imgFront" class="postcard-img" loading="lazy">
                             <div class="card-body">
-                                <h6 class="fw-800 text-truncate mb-1">{{ card.region }}</h6>
+                                <h6 class="fw-bold text-truncate mb-1">{{ card.region }}</h6>
                                 <div class="d-flex justify-content-between align-items-center small text-muted">
                                     <span><i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}</span>
-                                    <span class="badge bg-light text-dark font-monospace">{{ card.id }}</span>
+                                    <span class="badge bg-light text-dark font-monospace" style="font-size: 0.6rem;">{{ card.id }}</span>
                                 </div>
                             </div>
                         </div>
@@ -163,12 +200,12 @@
             </div>
 
             <div v-if="displayCount < totalFilteredCount" class="text-center mt-5 mb-5">
-                <button class="btn btn-load-more" @click="displayCount += 12">加载更多精彩</button>
+                <button class="btn btn-load-more shadow-sm" @click="displayCount += 12">加载更多精彩</button>
             </div>
         </div>
 
         <div class="sidebar-right">
-            <div class="filter-card">
+            <div class="filter-card shadow-sm">
                 <div class="filter-title"><i class="fa-solid fa-filter me-2 text-primary"></i>筛选与排序</div>
                 <div class="row g-3">
                     <div class="col-12">
@@ -181,19 +218,32 @@
                     </div>
                     <div class="col-6">
                         <label class="form-label">省份</label>
-                        <select v-model="filterProvince" class="form-select" @change="filterCity=''"><option value="">全部</option><option v-for="p in provinces" :value="p">{{p}}</option></select>
+                        <select v-model="filterProvince" class="form-select" @change="filterCity=''">
+                            <option value="">全部</option>
+                            <option v-for="p in provinces" :value="p">{{p}}</option>
+                        </select>
                     </div>
                     <div class="col-6">
                         <label class="form-label">城市</label>
-                        <select v-model="filterCity" class="form-select" :disabled="!filterProvince"><option value="">全部</option><option v-for="c in availableCities" :value="c">{{c}}</option></select>
+                        <select v-model="filterCity" class="form-select" :disabled="!filterProvince">
+                            <option value="">全部</option>
+                            <option v-for="c in availableCities" :value="c">{{c}}</option>
+                        </select>
                     </div>
                     <div class="col-6">
                         <label class="form-label">平台</label>
-                        <select v-model="filterPlatform" class="form-select"><option value="">全部</option><option v-for="p in platforms" :value="p">{{p}}</option></select>
+                        <select v-model="filterPlatform" class="form-select">
+                            <option value="">全部</option>
+                            <option v-for="p in platforms" :value="p">{{p}}</option>
+                        </select>
                     </div>
                     <div class="col-6">
                         <label class="form-label">收寄</label>
-                        <select v-model="filterType" class="form-select"><option value="">全部</option><option value="收到">📥 收到</option><option value="寄出">📤 寄出</option></select>
+                        <select v-model="filterType" class="form-select">
+                            <option value="">全部</option>
+                            <option value="收到">📥 收到</option>
+                            <option value="寄出">📤 寄出</option>
+                        </select>
                     </div>
                     <div class="col-12">
                         <label class="form-label">排序</label>
@@ -221,5 +271,15 @@
 <script src="cityData.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
+
+<script>
+    window.addEventListener('resize', function() {
+        const mapDom = document.getElementById('map-container');
+        if (mapDom) {
+            const myChart = echarts.getInstanceByDom(mapDom);
+            if (myChart) { myChart.resize(); }
+        }
+    });
+</script>
 </body>
 </html>
