@@ -1146,7 +1146,7 @@ const postcardData = [
   },
   {
     "id": "CNSC9908",
-    "type": "收到",
+    "type": "寄出",
     "country": "中国",
     "region": "四川成都",
     "note": "",
@@ -1159,7 +1159,7 @@ const postcardData = [
   },
   {
     "id": "CNSC9907",
-    "type": "收到",
+    "type": "寄出",
     "country": "中国",
     "region": "辽宁大连",
     "note": "",
@@ -1172,7 +1172,7 @@ const postcardData = [
   },
   {
     "id": "CNSC9906",
-    "type": "收到",
+    "type": "寄出",
     "country": "中国",
     "region": "四川德阳",
     "note": "",
@@ -1185,7 +1185,7 @@ const postcardData = [
   },
   {
     "id": "CNSC9903",
-    "type": "收到",
+    "type": "寄出",
     "country": "中国",
     "region": "四川德阳",
     "note": "",
@@ -1198,7 +1198,7 @@ const postcardData = [
   },
   {
     "id": "CNSC9902",
-    "type": "收到",
+    "type": "寄出",
     "country": "中国",
     "region": "辽宁大连",
     "note": "",
@@ -1211,7 +1211,7 @@ const postcardData = [
   },
   {
     "id": "CNSC9846",
-    "type": "收到",
+    "type": "寄出",
     "country": "中国",
     "region": "上海市松江区",
     "note": "",
@@ -1235,7 +1235,7 @@ const postcardData = [
   "platform": "Postcrossing"
 },{
   "id": "PHCNSC-1567",
-  "type": "收到",
+  "type": "寄出",
   "country": "中国",
   "region": "黑龙江哈尔滨",
   "note": "",
@@ -1261,6 +1261,108 @@ const postcardData = [
   "sendDate": "2026-01-12",
   "receiveDate": "2026-01-16",
   "person": "汤圆",
+  "platform": "Post-Hi"
+},{
+  "id": "HB-003699",
+  "type": "收到",
+  "country": "中国",
+  "region": "湖北武汉",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/HB-003699图像面.jpg",
+  "sendDate": "2026-01-10",
+  "receiveDate": "2026-01-16",
+  "person": "caia97",
+  "platform": "Manyour"
+},
+{
+  "id": "SD-003919",
+  "type": "收到",
+  "country": "中国",
+  "region": "山东青岛",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SD-003919图像面.jpg",
+  "sendDate": "2026-01-07",
+  "receiveDate": "2026-01-16",
+  "person": "LxhNolan",
+  "platform": "Manyour"
+},
+{
+  "id": "ZJ-008575",
+  "type": "收到",
+  "country": "中国",
+  "region": "浙江宁波",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/ZJ-008575图像面.jpg",
+  "sendDate": "2026-01-11",
+  "receiveDate": "2026-01-16",
+  "person": "三益",
+  "platform": "Manyour"
+},
+{
+  "id": "PHCNSD-3069",
+  "type": "收到",
+  "country": "中国",
+  "region": "山东济南",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSD-3069图像面.jpg",
+  "sendDate": "2026-01-13",
+  "receiveDate": "2026-01-16",
+  "person": "茶茶丸",
+  "platform": "Post-Hi"
+},
+{
+  "id": "PHCNBJ-3169",
+  "type": "收到",
+  "country": "中国",
+  "region": "北京市朝阳区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNBJ-3169图像面.jpg",
+  "sendDate": "2026-01-13",
+  "receiveDate": "2026-01-16",
+  "person": "兔兔",
+  "platform": "Post-Hi"
+},
+{
+  "id": "PHCNXJ-0477",
+  "type": "收到",
+  "country": "中国",
+  "region": "新疆若羌",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNXJ-0477图像面.jpg",
+  "sendDate": "2026-01-10",
+  "receiveDate": "2026-01-16",
+  "person": "点梦人（缓慢收寄中）",
+  "platform": "Post-Hi"
+},
+{
+  "id": "CNHN15249",
+  "type": "收到",
+  "country": "中国",
+  "region": "湖南长沙",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/CNHN15249图像面.jpg",
+  "sendDate": "2026-01-10",
+  "receiveDate": "2026-01-16",
+  "person": "彧郁昱",
+  "platform": "ICY"
+},{
+  "id": "PHCNFJ-2671",
+  "type": "收到",
+  "country": "中国",
+  "region": "福建福州",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNFJ-2671图像面.jpg",
+  "sendDate": "2025-12-21",
+  "receiveDate": "2025-12-23",
+  "person": "月儿丫丫",
   "platform": "Post-Hi"
 },
 ];
