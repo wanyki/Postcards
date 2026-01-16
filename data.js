@@ -1231,6 +1231,36 @@ const postcardData = [
   "imgFront": "./images/CN-4190216图像面.jpg",
   "sendDate": "2025-12-14",
   "receiveDate": "2026-01-10",
+  "person": "	lemiet",
   "platform": "Postcrossing"
+},{
+  "id": "PHCNSC-1567",
+  "type": "收到",
+  "country": "中国",
+  "region": "黑龙江哈尔滨",
+  "note": "",
+  "tags": [
+    "猫空，史努比"
+  ],
+  "imgFront": "./images/PHCNSC-1567图像面.jpg",
+  "sendDate": "2026-01-12",
+  "receiveDate": "2026-01-16",
+   "person": "坑坑",
+  "platform": "Post-Hi"
+},{
+  "id": "PHCNSC-1568",
+  "type": "寄出",
+  "country": "中国",
+  "region": "山东济南",
+  "note": "",
+  "tags": [
+    "猫空",
+    "史努比"
+  ],
+  "imgFront": "./images/PHCNSC-1568图像面.jpg",
+  "sendDate": "2026-01-12",
+  "receiveDate": "2026-01-16",
+  "person": "汤圆",
+  "platform": "Post-Hi"
 },
 ];

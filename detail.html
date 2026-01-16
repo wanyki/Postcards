@@ -2,229 +2,238 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>明信片详情 📮</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>明信片档案详情 📮</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --success-color: #2ec4b6;
-            --info-color: #3a86ff;
-            --bg-color: #f0f2f5;
+            --primary: #4361ee;
+            --bg: #f8f9fc;
+            --text-main: #2d3436;
         }
 
-        body { background-color: var(--bg-color); padding: 40px 0; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+        body { 
+            background-color: var(--bg); 
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; 
+            color: var(--text-main);
+            /* 手机端顶部间距减小 */
+            padding: 0 0 40px; 
+        }
 
-        /* 主详情卡片 */
+        /* 响应式导航 */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky; top: 0; z-index: 100;
+            padding: 12px 0; margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
         .detail-card { 
-            background: white; 
-            border-radius: 24px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
-            padding: 30px; 
-            border: 1px solid rgba(255,255,255,0.8);
-            overflow: hidden;
+            background: white; border-radius: 24px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.06); 
+            overflow: hidden; border: none;
+            margin-bottom: 20px;
         }
 
-        /* 图片容器美化 */
-        .img-container {
+        /* 图片区域响应式 */
+        .image-side {
+            background: #f1f3f5;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; /* 手机端减小内边距 */
+            min-height: 350px;
+        }
+        .img-wrapper {
             position: relative;
-            border-radius: 16px;
-            overflow: hidden;
-            background: #f8f9fa;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            border-radius: 12px; transition: transform 0.3s; cursor: zoom-in;
+            width: 100%; /* 手机端宽度占满 */
+            max-width: fit-content;
+        }
+        .img-wrapper img { 
+            width: 100%; height: auto; 
+            max-height: 70vh; /* 防止图片过长 */
+            border-radius: 12px; display: block;
         }
 
-        .detail-img { 
-            width: 100%; 
-            max-height: 500px; 
-            object-fit: contain; 
-            cursor: zoom-in; 
-            transition: transform 0.3s;
-        }
-        .detail-img:hover { transform: scale(1.02); }
-
-        /* 信息文字美化 */
-        .info-label { font-size: 0.85rem; color: #6c757d; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-value { font-size: 1.05rem; font-weight: 500; color: #2d3436; margin-bottom: 15px; }
-        .region-title { font-size: 2rem; font-weight: 800; color: #1e272e; margin-bottom: 20px; border-bottom: 3px solid var(--primary-color); display: inline-block; padding-bottom: 5px; }
-
-        /* 标签美化 */
-        .tag-badge { 
-            padding: 6px 14px; 
-            border-radius: 10px; 
-            font-weight: 500; 
-            background: #e9ecef; 
-            color: #495057; 
-            margin-right: 8px; 
-            margin-bottom: 8px; 
-            border: none;
-            transition: all 0.2s;
-        }
-        .tag-badge:hover { background: var(--primary-color); color: white; }
-
-        /* 底部相关卡片美化 (同步首页样式) */
-        .postcard-item { transition: all 0.4s; border-radius: 18px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: none; }
-        .postcard-item:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
-        .postcard-mini-img { width: 100%; height: 160px; object-fit: cover; }
-
-        /* 全屏模态框 */
-        .image-modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .image-modal-backdrop img {
-            max-width: 95%;
-            max-height: 95%;
-            object-fit: contain;
-            border-radius: 5px;
+        /* 信息区域响应式 */
+        .info-side { padding: 30px 20px; } /* 默认手机端边距 */
+        
+        @media (min-width: 992px) {
+            body { padding-top: 30px; }
+            .info-side { padding: 50px 45px; }
+            .image-side { padding: 40px; min-height: 550px; }
         }
 
-        .stats-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        /* ID 标签 */
+        .badge-id { 
+            font-family: "Courier New", Courier, monospace;
+            background: #2d3436; color: #ffffff;
+            padding: 5px 14px; border-radius: 8px;
+            font-size: 0.9rem; font-weight: 700;
+            display: inline-block; margin-bottom: 15px;
+        }
 
-        [v-cloak] { display: none !important; }
+        .user-region-title {
+            font-size: 1.8rem; font-weight: 800;
+            color: #1a1a1a; margin-bottom: 10px; line-height: 1.2;
+        }
+        @media (min-width: 768px) { .user-region-title { font-size: 2.4rem; } }
+
+        /* 漂流盒响应式 */
+        .drift-box {
+            background: #f8faff; border: 1px solid #e0e7ff;
+            border-radius: 20px; padding: 20px; margin-bottom: 25px;
+        }
+        .drift-line { height: 1px; background: #cbd5e1; position: relative; margin: 15px 0; }
+        .drift-line::after {
+            content: "✈️"; position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -55%); background: #f8faff; padding: 0 8px;
+        }
+
+        /* 信息网格响应式：手机 1 列，平板 2 列 */
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        @media (min-width: 576px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+
+        .info-item label { display: block; font-size: 0.75rem; color: #7f8c8d; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; }
+        .info-item span { font-weight: 600; color: #2c3e50; font-size: 1rem; }
+
+        /* 心情区域 */
+        .note-area {
+            background: #fffdf5; border-left: 4px solid #ffeaa7;
+            padding: 15px; color: #4b4b4b; line-height: 1.7; font-size: 0.95rem;
+        }
+
+        /* 标签 */
+        .tag-pill {
+            background: white; color: var(--primary);
+            padding: 4px 10px; border-radius: 6px; margin-right: 6px;
+            margin-bottom: 8px; font-size: 0.8rem; 
+            border: 1px solid #d1d9ff; display: inline-block;
+        }
+
+        /* 模态框图片自适应 */
+        #imgModal img { width: 95%; height: auto; max-height: 90vh; }
     </style>
 </head>
 <body>
-<div id="app" class="container" v-cloak>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0">
-            <span class="me-2">📮</span> 明信片详情
-        </h4>
-        <a href="index.html" class="btn btn-light shadow-sm px-4 rounded-pill">
-            <i class="bi bi-arrow-left"></i> 返回主页
+
+<header class="glass-header shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <span class="fs-5 me-2">📮</span>
+            <h6 class="mb-0 fw-bold d-none d-sm-block">明信片档案</h6>
+            <h6 class="mb-0 fw-bold d-block d-sm-none">档案详情</h6>
+        </div>
+        <a href="index.html" class="btn btn-outline-dark rounded-pill px-3 btn-sm">
+            <i class="bi bi-arrow-left"></i> 返回
         </a>
     </div>
+</header>
 
-    <div id="detail-container">
+<div class="container">
+    <div id="detail-root">
         </div>
-
-    <div class="stats-card mt-5">
-        <h6 class="fw-bold mb-3">🔍 快速筛选相关收藏</h6>
-        <div class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label small text-muted">所在省份</label>
-                <select v-model="filterProvince" class="form-select border-0 bg-light" @change="filterCity = ''">
-                    <option value="">所有省份</option>
-                    <option v-for="p in provinces" :value="p">{{ p }}</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label small text-muted">类别</label>
-                <select v-model="filterType" class="form-select border-0 bg-light">
-                    <option value="">所有类型</option>
-                    <option value="收到">📥 收到</option>
-                    <option value="寄出">📤 寄出</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label small text-muted">标签搜索</label>
-                <input v-model="filterTag" type="text" class="form-control border-0 bg-light" placeholder="搜索相关标签...">
-            </div>
-            <div class="col-md-2 text-end">
-                <span class="badge bg-primary-subtle text-primary p-2 w-100">库中共 {{ postcards.length }} 张</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4 g-4" v-if="hasFilter">
-        <div class="col-12 mb-2"><h6 class="fw-bold">匹配到的其他明信片：</h6></div>
-        <div class="col-xl-3 col-lg-4 col-md-6" v-for="card in filteredCards" :key="card.id">
-            <a :href="'detail.html?id=' + encodeURIComponent(card.id)" class="text-decoration-none text-reset">
-                <div class="postcard-item h-100">
-                    <img :src="card.imgFront" class="postcard-mini-img" loading="lazy">
-                    <div class="p-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="badge bg-light text-dark border">{{ card.type }}</span>
-                            <small class="text-muted font-monospace">{{ card.id }}</small>
-                        </div>
-                        <h6 class="fw-bold text-truncate mb-1">{{ card.region }}</h6>
-                        <p class="small text-muted mb-0">{{ card.sendDate || card.receiveDate || '—' }}</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
 </div>
 
-<div id="imgModal" class="image-modal-backdrop" onclick="closeImageModal()">
-    <img id="imgModalImg" src="" alt="预览大图">
-    <div class="text-white position-absolute bottom-0 mb-4">点击任意处关闭</div>
+<div id="imgModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:2000;" onclick="this.style.display='none'">
+    <img id="imgModalImg" src="" style="border-radius:8px;">
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
 <script src="data.js"></script>
-<script src="app.js"></script>
 <script>
     function getQueryId() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('id');
+        return new URLSearchParams(window.location.search).get('id');
     }
 
-    function renderDetail() {
-        const id = getQueryId();
-        const container = document.getElementById('detail-container');
+    function getDriftDays(s, r) {
+        if (!s || !r) return null;
+        const diff = Math.floor((new Date(r) - new Date(s)) / (1000 * 60 * 60 * 24));
+        return diff >= 0 ? diff : 0;
+    }
 
-        if (!id || !Array.isArray(postcardData)) {
-            container.innerHTML = '<div class="alert alert-danger shadow-sm">未找到明信片信息。</div>';
-            return;
-        }
+    function render() {
+        const id = getQueryId();
+        const root = document.getElementById('detail-root');
+        if (typeof postcardData === 'undefined') return;
 
         const card = postcardData.find(c => c.id === id);
         if (!card) {
-            container.innerHTML = '<div class="alert alert-warning shadow-sm">没有找到编号为 ' + id + ' 的明信片。</div>';
+            root.innerHTML = `<div class="text-center py-5"><h5>档案未找到</h5><a href="index.html" class="btn btn-primary mt-3">返回主页</a></div>`;
             return;
         }
 
+        const drift = getDriftDays(card.sendDate, card.receiveDate);
         const tags = Array.isArray(card.tags) ? card.tags : [];
 
-        // 动态生成详情内容
-        container.innerHTML = `
+        root.innerHTML = `
             <div class="detail-card">
-                <div class="row g-5">
-                    <div class="col-lg-7">
-                        <div class="img-container">
-                            <img class="detail-img" src="${card.imgFront}" alt="明信片正面" onclick="openImageModal('${card.imgFront}')" title="点击放大图片">
+                <div class="row g-0">
+                    <div class="col-lg-7 image-side">
+                        <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
+                            <img src="${card.imgFront}" alt="Postcard">
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                        <div class="ps-lg-3">
-                            <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} mb-2 px-3 py-2 rounded-pill">${card.type === '收到' ? '📥 收到' : '📤 寄出'}</span>
-                            <h2 class="region-title d-block">${card.region}</h2>
-                            
-                            <div class="row mb-4">
-                                <div class="col-6">
-                                    <div class="info-label">统一编号</div>
-                                    <div class="info-value font-monospace text-primary">${card.id}</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="info-label">来源平台</div>
-                                    <div class="info-value">${card.platform || '—'}</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="info-label">时间</div>
-                                    <div class="info-value">${card.sendDate || card.receiveDate || card.date || '—'}</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="info-label">关联人</div>
-                                    <div class="info-value">${card.person || '—'}</div>
-                                </div>
-                            </div>
 
-                            <div class="info-label">心情与故事</div>
-                            <p class="text-secondary mb-4" style="line-height: 1.8; white-space: pre-line;">${card.note || '持信人很懒，还没有写下这段足迹的故事...'}</p>
-                            
-                            <div class="info-label mb-2">个性化标签</div>
-                            <div class="d-flex flex-wrap">
-                                ${tags.length ? tags.map(t => `<span class="tag-badge"># ${t}</span>`).join('') : '<span class="text-muted small">暂无标签</span>'}
+                    <div class="col-lg-5 info-side">
+                        <div class="badge-id">ID: ${card.id}</div>
+                        
+                        <h2 class="user-region-title">${card.person || '佚名'} - ${card.region}</h2>
+                        
+                        <div class="d-flex gap-2 mb-4">
+                            <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
+                            <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
+                        </div>
+
+                        <div class="drift-box">
+                            <div class="row text-center g-0">
+                                <div class="col-5">
+                                    <label>Sent</label>
+                                    <div class="fw-bold">${card.sendDate || '—'}</div>
+                                </div>
+                                <div class="col-2 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-arrow-right-short text-muted fs-4"></i>
+                                </div>
+                                <div class="col-5">
+                                    <label>Received</label>
+                                    <div class="fw-bold">${card.receiveDate || '—'}</div>
+                                </div>
                             </div>
+                            <div class="drift-line"></div>
+                            <div class="text-center">
+                                ${drift !== null ? 
+                                    `<span class="fw-bold text-primary small"><i class="bi bi-clock-fill me-1"></i> 漂流旅程：${drift} 天</span>` : 
+                                    `<span class="text-muted small">漂流时间不详</span>`
+                                }
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>来源平台</label>
+                                <span><i class="bi bi-globe2 me-2"></i>${card.platform || '个人交换'}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>关联人物</label>
+                                <span><i class="bi bi-person-heart me-2"></i>${card.person || '未知'}</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="small text-muted fw-bold mb-2 d-block">档案备注</label>
+                            <div class="note-area">
+                                ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
+                            </div>
+                        </div>
+
+                        <div class="tag-container">
+                            ${tags.map(t => `<span class="tag-pill"># ${t}</span>`).join('')}
                         </div>
                     </div>
                 </div>
@@ -232,21 +241,7 @@
         `;
     }
 
-    function openImageModal(src) {
-        const modal = document.getElementById('imgModal');
-        const img = document.getElementById('imgModalImg');
-        img.src = src;
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // 禁止背景滚动
-    }
-
-    function closeImageModal() {
-        const modal = document.getElementById('imgModal');
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto'; 
-    }
-
-    renderDetail();
+    window.onload = render;
 </script>
 </body>
 </html>
