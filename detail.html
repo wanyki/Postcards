@@ -238,8 +238,10 @@
                     <div class="col-lg-4 info-side">
                         <div class="badge-id">ID: ${card.id}</div>
                         
-                        <h2 class="user-region-title">${card.person || '佚名'} - ${card.region}</h2>
-                        
+                      
+<h2 class="user-region-title">
+    ${card.person || '佚名'} - ${card.region || card.country || '海外'}
+</h2>
                         <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
                             <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
                             <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>

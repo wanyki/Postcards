@@ -1364,5 +1364,17 @@ const postcardData = [
   "receiveDate": "2025-12-23",
   "person": "月儿丫丫",
   "platform": "Post-Hi"
+},{
+  "id": "PHCNSC-1559",
+  "type": "寄出",
+  "country": "中国",
+  "region": "新疆巴音郭楞蒙古自治州",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1559图像面.jpg",
+  "sendDate": "2026-01-12",
+  "receiveDate": "2026-01-16",
+  "person": "点梦人（缓慢收寄中）",
+  "platform": "Post-Hi"
 },
 ];
