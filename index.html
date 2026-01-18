@@ -22,6 +22,18 @@
             padding-bottom: 50px;
         }
 
+        /* 新增：API 加载遮罩 */
+        #api-loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
         /* 顶部统计卡片 */
         .stat-container { 
             display: flex; 
@@ -138,6 +150,11 @@
 </head>
 <body>
 
+<div id="api-loader">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="mt-3 fw-bold text-muted">正在调取云端记忆...</div>
+</div>
+
 <div id="app" class="container-fluid px-2 px-md-4 px-lg-5" v-cloak>
     <div class="stat-container">
         <div class="stat-card">
@@ -182,18 +199,18 @@
                         <div class="postcard-item shadow-sm">
                             <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
                             <img :src="card.imgFront" class="postcard-img" loading="lazy">
-                           <div class="card-body">
-    <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
-    <div class="d-flex justify-content-between align-items-center small text-muted">
-        <span>
-            <i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}
-            <span v-if="card.receiveDate && card.sendDate" class="text-primary fw-bold ms-1" style="font-size: 0.7rem;">
-                (✈️ {{ Math.floor((new Date(card.receiveDate) - new Date(card.sendDate))/86400000) }}天)
-            </span>
-        </span>
-        <span class="badge bg-light text-dark font-monospace" style="font-size: 0.6rem;">{{ card.id }}</span>
-    </div>
-</div>
+                            <div class="card-body">
+                                <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
+                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                    <span>
+                                        <i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}
+                                        <span v-if="card.receiveDate && card.sendDate" class="text-primary fw-bold ms-1" style="font-size: 0.7rem;">
+                                            (✈️ {{ Math.floor((new Date(card.receiveDate) - new Date(card.sendDate))/86400000) }}天)
+                                        </span>
+                                    </span>
+                                    <span class="badge bg-light text-dark font-monospace" style="font-size: 0.6rem;">{{ card.id }}</span>
+                                </div>
+                            </div>
                         </div>
                     </a>
                 </div> 
@@ -256,23 +273,23 @@
                         </select>
                     </div>
                     <div class="col-6">
-    <label class="form-label">结果排序</label>
-    <select v-model="sortBy" class="form-select">
-        <optgroup label="时间与编号">
-            <option value="date_desc">📅 日期 (近优先)</option>
-            <option value="date_asc">📅 日期 (远优先)</option>
-            <option value="id_desc">🔢 编号 (新→旧)</option>
-            <option value="id_asc">🔢 编号 (旧→新)</option>
-        </optgroup>
-        <optgroup label="时光旅程">
-            <option value="duration_desc">⏳ 漂流最久</option>
-            <option value="duration_asc">⚡ 漂流最快</option>
-        </optgroup>
-        <optgroup label="地理分布">
-            <option value="area">📍 按国家/地区</option>
-        </optgroup>
-    </select>
-</div>
+                        <label class="form-label">结果排序</label>
+                        <select v-model="sortBy" class="form-select">
+                            <optgroup label="时间与编号">
+                                <option value="date_desc">📅 日期 (近优先)</option>
+                                <option value="date_asc">📅 日期 (远优先)</option>
+                                <option value="id_desc">🔢 编号 (新→旧)</option>
+                                <option value="id_asc">🔢 编号 (旧→新)</option>
+                            </optgroup>
+                            <optgroup label="时光旅程">
+                                <option value="duration_desc">⏳ 漂流最久</option>
+                                <option value="duration_asc">⚡ 漂流最快</option>
+                            </optgroup>
+                            <optgroup label="地理分布">
+                                <option value="area">📍 按国家/地区</option>
+                            </optgroup>
+                        </select>
+                    </div>
 
                     <div class="col-12 mt-4 pt-3 border-top">
                         <button class="btn btn-reset-large" @click="resetAll">
@@ -290,10 +307,39 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
 <script src="cityData.js"></script>
-<script src="data.js"></script>
+
 <script src="app.js"></script>
 
 <script>
+    // 在页面加载后自动通过接口获取数据
+    (async function fetchPostcards() {
+        try {
+            const res = await fetch('/api/get-cards');
+            const data = await res.json();
+            
+            // 核心逻辑：将数据注入 Vue 实例
+            // 我们通过轮询确保 app.js 中的 Vue 实例 (window.vm) 已初始化
+            const timer = setInterval(() => {
+                if (window.vm) {
+                    window.vm.postcards = data;
+                    // 隐藏加载遮罩
+                    const loader = document.getElementById('api-loader');
+                    if(loader) loader.style.display = 'none';
+                    clearInterval(timer);
+                }
+            }, 100);
+
+            // 如果 5 秒后还没加载出 Vue，强制关掉遮罩
+            setTimeout(() => clearInterval(timer), 5000);
+
+        } catch (e) {
+            console.error("云端取数失败:", e);
+            const loaderText = document.querySelector('#api-loader .fw-bold');
+            if(loaderText) loaderText.innerText = "数据读取失败，请检查数据库配置";
+        }
+    })();
+
+    // 窗口缩放适配地图
     window.addEventListener('resize', function() {
         const mapDom = document.getElementById('map-container');
         if (mapDom) {

@@ -1,0 +1,8 @@
+{
+  "name": "postcard-footprints",
+  "version": "2.1.1",
+  "type": "module",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}

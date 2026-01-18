@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>v2.1.1 数据搬家工具</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .log-item { margin: 5px 0; padding: 5px; border-bottom: 1px solid #eee; }
+        .success { color: green; }
+        .error { color: red; font-weight: bold; }
+        .stats { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #0070f3; color: white; border: none; border-radius: 5px; }
+        button:disabled { background: #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🚀 数据库迁移工具 (v2.1.1)</h1>
+    
+    <div class="stats">
+        <p><strong>检测状态：</strong> <span id="check-status">正在读取 data.js...</span></p>
+        <p><strong>数据总量：</strong> <span id="data-count">0</span> 条</p>
+        <button id="start-btn" disabled>确认无误，开始搬家</button>
+    </div>
+
+    <div id="log"></div>
+
+    <script src="data.js"></script>
+
+    <script>
+        const logDiv = document.getElementById('log');
+        const startBtn = document.getElementById('start-btn');
+        const countSpan = document.getElementById('data-count');
+        const statusSpan = document.getElementById('check-status');
+
+        // 【关键】匹配你 data.js 里的变量名 postcardData
+        const sourceData = typeof postcardData !== 'undefined' ? postcardData : [];
+
+        // 初始化检测
+        if (sourceData.length > 0) {
+            statusSpan.innerText = "✅ 已成功识别 postcardData 变量！";
+            statusSpan.style.color = "green";
+            countSpan.innerText = sourceData.length;
+            startBtn.disabled = false;
+        } else {
+            statusSpan.innerText = "❌ 找不到数据，请检查 data.js 是否包含 postcardData 变量";
+            statusSpan.style.color = "red";
+        }
+
+        // 搬家逻辑
+        startBtn.onclick = async () => {
+            const password = prompt("请输入你在 Vercel 设置的 ADMIN_PASSWORD");
+            if (!password) return;
+
+            startBtn.disabled = true;
+            logDiv.innerHTML = "<h3>开始同步...</h3>";
+
+            // 为了防止请求过快导致数据库压力，我们按顺序一条条发
+            for (let i = 0; i < sourceData.length; i++) {
+                const card = sourceData[i];
+                try {
+                    const res = await fetch('/api/add-cards', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            password: password,
+                            newCard: card
+                        })
+                    });
+                    
+                    const result = await res.json();
+                    
+                    const p = document.createElement('div');
+                    p.className = 'log-item';
+                    if (res.ok) {
+                        p.innerHTML = `<span class="success">✅ [${i+1}/${sourceData.length}] 成功: ${card.id} (${card.region})</span>`;
+                    } else {
+                        p.innerHTML = `<span class="error">❌ [${i+1}/${sourceData.length}] 失败: ${card.id} - ${result.error}</span>`;
+                    }
+                    logDiv.prepend(p); // 最新的日志显示在上面
+                } catch (e) {
+                    console.error(e);
+                    const p = document.createElement('div');
+                    p.className = 'log-item error';
+                    p.innerText = `💥 网络错误: ${e.message}`;
+                    logDiv.prepend(p);
+                }
+            }
+
+            logDiv.innerHTML = "<h2>🎊 全部迁移任务已完成！</h2>" + logDiv.innerHTML;
+        };
+    </script>
+</body>
+</html>
