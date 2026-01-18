@@ -1376,5 +1376,29 @@ const postcardData = [
   "receiveDate": "2026-01-16",
   "person": "点梦人（缓慢收寄中）",
   "platform": "Post-Hi"
+},{
+  "id": "PHCNSC-1594",
+  "type": "寄出",
+  "country": "中国",
+  "region": "吉林长春",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1594图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-18",
+  "person": "Ordinary",
+  "platform": "Post-Hi"
+},{
+  "id": "SC-002660",
+  "type": "寄出",
+  "country": "中国",
+  "region": "浙江杭州",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-002660图像面.jpg",
+  "sendDate": "2026-01-09",
+  "receiveDate": "2026-01-17",
+  "person": "酒吧驻唱哈士奇",
+  "platform": "Manyour"
 },
 ];
