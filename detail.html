@@ -29,7 +29,6 @@
             z-index: 1000;
             margin: 0 auto;
             width: 95%;
-            /* 增大页眉宽度以匹配主体 */
             max-width: 1400px;
         }
 
@@ -81,7 +80,6 @@
             padding: 30px 0 60px;
         }
 
-        /* 统一响应式容器宽度 */
         .container-wide {
             width: 95%;
             max-width: 1400px;
@@ -98,7 +96,7 @@
         .image-side {
             background: #f1f3f5;
             display: flex; align-items: center; justify-content: center;
-            padding: 15px; /* 减小默认内边距 */
+            padding: 15px;
             min-height: 350px;
         }
 
@@ -117,7 +115,7 @@
             width: 100%; 
             height: auto; 
             max-width: 100%;
-            max-height: 85vh; /* 允许在大屏下显示得更高 */
+            max-height: 85vh;
             border-radius: 16px; 
             display: block;
             object-fit: contain;
@@ -127,7 +125,6 @@
 
         .info-side { padding: 30px 20px; }
         
-        /* 针对大屏幕优化：扩展宽度和内边距 */
         @media (min-width: 992px) {
             .info-side { padding: 50px 40px; }
             .image-side { padding: 40px; min-height: 600px; }
@@ -173,6 +170,15 @@
 
         #imgModal { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
         #imgModal img { max-width: 95%; max-height: 90vh; border-radius: 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+
+        /* 加载动画样式 */
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
     </style>
 </head>
 <body>
@@ -192,7 +198,12 @@
 
 <main class="main-container">
     <div class="container-wide">
-        <div id="detail-root"></div>
+        <div id="detail-root">
+            <div class="loading-spinner">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <div class="text-muted">正在检索云端档案...</div>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -200,7 +211,6 @@
     <img id="imgModalImg" src="">
 </div>
 
-<script src="data.js"></script>
 <script>
     function getQueryId() {
         return new URLSearchParams(window.location.search).get('id');
@@ -212,81 +222,107 @@
         return diff >= 0 ? diff : 0;
     }
 
-    function render() {
+    async function render() {
         const id = getQueryId();
         const root = document.getElementById('detail-root');
-        if (typeof postcardData === 'undefined') return;
 
-        const card = postcardData.find(c => c.id === id);
-        if (!card) {
-            root.innerHTML = `<div class="text-center py-5"><h5>档案未找到</h5><a href="index.html" class="btn btn-primary mt-3">返回主页</a></div>`;
-            return;
-        }
+        try {
+            // 1. 从 Vercel API 获取数据
+            const response = await fetch('/api/get-cards');
+            if (!response.ok) throw new Error('网络请求失败');
+            
+            const postcardData = await response.json();
 
-        const drift = getDriftDays(card.sendDate, card.receiveDate);
-        const tags = Array.isArray(card.tags) ? card.tags : [];
+            // 2. 匹配对应 ID 的明信片
+            const card = postcardData.find(c => c.id === id);
+            
+            if (!card) {
+                root.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-exclamation-circle text-warning fs-1 mb-3"></i>
+                        <h5>档案未找到</h5>
+                        <p class="text-muted">该编号可能已被移除或 ID 错误</p>
+                        <a href="index.html" class="btn btn-primary mt-3">返回主页</a>
+                    </div>`;
+                return;
+            }
 
-        root.innerHTML = `
-            <div class="detail-card">
-                <div class="row g-0">
-                    <div class="col-lg-8 image-side">
-                        <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
-                            <img src="${card.imgFront}" alt="Postcard Side">
-                        </div>
-                    </div>
+            // 3. 计算漂流数据和标签
+            const drift = getDriftDays(card.sendDate, card.receiveDate);
+            const tags = Array.isArray(card.tags) ? card.tags : [];
 
-                    <div class="col-lg-4 info-side">
-                        <div class="badge-id">ID: ${card.id}</div>
-                        
-                      
-<h2 class="user-region-title">
-    ${card.person || '佚名'} - ${card.region || card.country || '海外'}
-</h2>
-                        <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
-                            <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
-                            <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
-                            <span class="ms-1 text-muted small fw-bold" style="letter-spacing:0.5px">
-                                <i class="bi bi-globe2 me-1"></i>${card.platform || '个人交换'}
-                            </span>
-                        </div>
-
-                        <div class="drift-box">
-                            <div class="row text-center g-0">
-                                <div class="col-5">
-                                    <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">寄出 Sent</label>
-                                    <div class="fw-bold">${card.sendDate || '—'}</div>
-                                </div>
-                                <div class="col-2 d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-arrow-right-short text-muted fs-4"></i>
-                                </div>
-                                <div class="col-5">
-                                    <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">收到 Received</label>
-                                    <div class="fw-bold">${card.receiveDate || '—'}</div>
-                                </div>
-                            </div>
-                            <div class="drift-line"></div>
-                            <div class="text-center">
-                                ${drift !== null ? 
-                                    `<span class="fw-bold text-primary small"><i class="bi bi-clock-fill me-1"></i> 漂流旅程：${drift} 天</span>` : 
-                                    `<span class="text-muted small">漂流时间不详</span>`
-                                }
+            // 4. 渲染详情内容
+            root.innerHTML = `
+                <div class="detail-card">
+                    <div class="row g-0">
+                        <div class="col-lg-8 image-side">
+                            <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
+                                <img src="${card.imgFront}" alt="Postcard Front" onerror="this.src='https://placehold.co/600x400?text=图片丢失'">
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="small text-muted fw-bold mb-2 d-block" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">档案备注 Note</label>
-                            <div class="note-area shadow-sm">
-                                ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
-                            </div>
-                        </div>
+                        <div class="col-lg-4 info-side">
+                            <div class="badge-id">ID: ${card.id}</div>
+                            
+                            <h2 class="user-region-title">
+                                ${card.person || '佚名'} - ${card.region || card.country || '海外'}
+                            </h2>
 
-                        <div class="tag-container">
-                            ${tags.map(t => `<span class="tag-pill"># ${t}</span>`).join('')}
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
+                                <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '未知国家'}</span>
+                                <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
+                                <span class="ms-1 text-muted small fw-bold" style="letter-spacing:0.5px">
+                                    <i class="bi bi-globe2 me-1"></i>${card.platform || '个人交换'}
+                                </span>
+                            </div>
+
+                            <div class="drift-box">
+                                <div class="row text-center g-0">
+                                    <div class="col-5">
+                                        <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">寄出 Sent</label>
+                                        <div class="fw-bold">${card.sendDate || '—'}</div>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-arrow-right-short text-muted fs-4"></i>
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">收到 Received</label>
+                                        <div class="fw-bold">${card.receiveDate || '—'}</div>
+                                    </div>
+                                </div>
+                                <div class="drift-line"></div>
+                                <div class="text-center">
+                                    ${drift !== null ? 
+                                        `<span class="fw-bold text-primary small"><i class="bi bi-clock-fill me-1"></i> 漂流旅程：${drift} 天</span>` : 
+                                        `<span class="text-muted small">漂流时间不详</span>`
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small text-muted fw-bold mb-2 d-block" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">档案备注 Note</label>
+                                <div class="note-area shadow-sm">
+                                    ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
+                                </div>
+                            </div>
+
+                            <div class="tag-container">
+                                ${tags.map(t => `<span class="tag-pill"># ${t}</span>`).join('')}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        } catch (error) {
+            console.error(error);
+            root.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-wifi-off text-danger fs-1 mb-3"></i>
+                    <h5>云端连接失败</h5>
+                    <p class="text-muted">请检查网络连接或 Vercel 服务状态</p>
+                    <button onclick="location.reload()" class="btn btn-outline-primary mt-3">重试</button>
+                </div>`;
+        }
     }
 
     window.onload = render;

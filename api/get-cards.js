@@ -1,21 +1,22 @@
 import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
-  // 允许跨域和设置返回格式
-  res.setHeader('Content-Type', 'application/json');
-  
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: '仅支持 GET 请求' });
-  }
+    // 限制仅允许 GET 请求
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
 
-  try {
-    // 【关键】这里使用了你确认的键名 'postcard'
-    const data = await kv.get('postcard');
-    
-    // 如果数据库是空的，返回空数组 []
-    return res.status(200).json(data || []);
-  } catch (error) {
-    console.error('KV读取失败:', error);
-    return res.status(500).json({ error: '服务端数据库连接失败' });
-  }
+    try {
+        // 从 KV 中获取数据，如果没有数据则返回空数组 []
+        const cards = await kv.get('postcard');
+        
+        // 建议增加一个基础的兜底逻辑
+        const data = cards || [];
+        
+        // 返回 JSON 数据
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('KV Read Error:', error);
+        return res.status(500).json({ error: '无法从数据库读取数据' });
+    }
 }

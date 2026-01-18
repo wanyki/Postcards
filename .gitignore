@@ -6,3 +6,7 @@ node_modules
 .vscode
 .idea
 .vscode/
+admin.html
+data.js
+migrate.html
+bulk.html
