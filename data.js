@@ -1400,5 +1400,43 @@ const postcardData = [
   "receiveDate": "2026-01-17",
   "person": "酒吧驻唱哈士奇",
   "platform": "Manyour"
+},{
+  "id": "SC-002649",
+  "type": "寄出",
+  "country": "中国",
+  "region": "贵州六盘水",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-002649图像面.jpg",
+  "sendDate": "2026-01-08",
+  "receiveDate": "2026-01-18",
+  "person": "小河",
+  "platform": "Manyour"
+},{
+  "id": "PHCNSH-4188",
+  "type": "收到",
+  "country": "中国",
+  "region": "上海市闵行区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSH-4188图像面.jpg",
+  "sendDate": "2026-01-10",
+  "receiveDate": "2026-01-18",
+  "person": "ahy",
+  "platform": "Post-Hi"
 },
+{
+  "id": "PHCNSH-4183",
+  "type": "收到",
+  "country": "中国",
+  "region": "上海市闵行区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSH-4183图像面.jpg",
+  "sendDate": "2026-01-10",
+  "receiveDate": "2026-01-18",
+  "person": "ahy",
+  "platform": "Post-Hi"
+},
+
 ];
