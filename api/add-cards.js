@@ -1,16 +1,19 @@
 import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
-    // 在 handler 函数的最上方添加
-res.setHeader('Access-Control-Allow-Credentials', true);
-res.setHeader('Access-Control-Allow-Origin', '*'); 
-res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+    // 1. 设置最强兼容跨域头
+    res.setHeader('Access-Control-Allow-Origin', '*'); 
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Max-Age', '86400'); // 允许预检请求缓存 24 小时
 
-if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-}
+    // 2. 必须优先处理 OPTIONS 预检
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
 
+    // 3. 校验请求方法
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: '必须使用 POST 请求' });
     }
