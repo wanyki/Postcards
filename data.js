@@ -1437,6 +1437,56 @@ const postcardData = [
   "receiveDate": "2026-01-18",
   "person": "ahy",
   "platform": "Post-Hi"
+},{
+  "id": "SC-002666",
+  "type": "寄出",
+  "country": "中国",
+  "region": "江苏南京",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-002666图像面.jpg",
+  "sendDate": "2026-01-09",
+  "receiveDate": "2026-01-20",
+  "person": "朝歌",
+  "platform": "Manyour"
 },
-
+{
+  "id": "HB-003852",
+  "type": "收到",
+  "country": "中国",
+  "region": "湖北武汉",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/HB-003852图像面.jpg",
+  "sendDate": "2026-01-16",
+  "receiveDate": "2026-01-20",
+  "person": "虫耳朵",
+  "platform": "Manyour"
+},
+{
+  "id": "PHCNZJ-6231",
+  "type": "收到",
+  "country": "中国",
+  "region": "浙江绍兴",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNZJ-6231图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-20",
+  "person": "F A xx",
+  "platform": "Post-Hi"
+},
+{
+  "id": "PHCNHB-2412",
+  "type": "收到",
+  "country": "中国",
+  "region": "湖北武汉",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNHB-2412图像面.jpg",
+  "sendDate": "2026-01-15",
+  "receiveDate": "2026-01-20",
+  "person": "Silence",
+  "platform": "Post-Hi"
+},
 ];
