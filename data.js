@@ -1512,5 +1512,17 @@ const postcardData = [
   "receiveDate": "2026-01-20",
   "person": "礼一",
   "platform": "Post-Hi"
+},{
+  "id": "PYLS-0001",
+  "type": "收到",
+  "country": "中国",
+  "region": "西藏拉萨",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PYLS-0001图像面.jpg",
+  "sendDate": "2026-01-16",
+  "receiveDate": "2026-01-18",
+  "person": "文意",
+  "platform": "自寄"
 },
 ];

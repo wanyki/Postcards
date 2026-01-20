@@ -217,20 +217,30 @@
                         <input v-model="filterTag" type="text" class="form-control" placeholder="搜索内容、地点...">
                     </div>
                     
-                    <div class="col-6">
-                        <label class="form-label">省份 (国内)</label>
-                        <select v-model="filterProvince" class="form-select" @change="filterCity=''">
-                            <option value="">全部</option>
-                            <option v-for="p in provinces" :value="p">{{p}}</option>
+                    <div class="col-12">
+                        <label class="form-label">国家 / 地区</label>
+                        <select v-model="filterCountry" class="form-select" @change="handleCountryChange">
+                            <option value="">🌏 全部国家</option>
+                            <option v-for="c in countries" :value="c">{{c}}</option>
                         </select>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label">城市</label>
-                        <select v-model="filterCity" class="form-select" :disabled="!filterProvince">
-                            <option value="">全部</option>
-                            <option v-for="c in availableCities" :value="c">{{c}}</option>
-                        </select>
-                    </div>
+
+                    <template v-if="filterCountry === '中国'">
+                        <div class="col-6">
+                            <label class="form-label">省份</label>
+                            <select v-model="filterProvince" class="form-select" @change="filterCity=''">
+                                <option value="">全部</option>
+                                <option v-for="p in provinces" :value="p">{{p}}</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">城市</label>
+                            <select v-model="filterCity" class="form-select" :disabled="!filterProvince">
+                                <option value="">全部</option>
+                                <option v-for="c in availableCities" :value="c">{{c}}</option>
+                            </select>
+                        </div>
+                    </template>
 
                     <div class="col-6">
                         <label class="form-label">来源平台</label>
@@ -248,31 +258,24 @@
                         </select>
                     </div>
 
-                    <div class="col-6">
-                        <label class="form-label">国家 / 地区</label>
-                        <select v-model="filterCountry" class="form-select" @change="filterProvince=''">
-                            <option value="">全部国家</option>
-                            <option v-for="c in countries" :value="c">{{c}}</option>
+                    <div class="col-12">
+                        <label class="form-label">结果排序</label>
+                        <select v-model="sortBy" class="form-select">
+                            <optgroup label="时间与编号">
+                                <option value="date_desc">📅 日期 (近优先)</option>
+                                <option value="date_asc">📅 日期 (远优先)</option>
+                                <option value="id_desc">🔢 编号 (新→旧)</option>
+                                <option value="id_asc">🔢 编号 (旧→新)</option>
+                            </optgroup>
+                            <optgroup label="时光旅程">
+                                <option value="duration_desc">⏳ 漂流最久</option>
+                                <option value="duration_asc">⚡ 漂流最快</option>
+                            </optgroup>
+                            <optgroup label="地理分布">
+                                <option value="area">📍 按国家/地区</option>
+                            </optgroup>
                         </select>
                     </div>
-                    <div class="col-6">
-    <label class="form-label">结果排序</label>
-    <select v-model="sortBy" class="form-select">
-        <optgroup label="时间与编号">
-            <option value="date_desc">📅 日期 (近优先)</option>
-            <option value="date_asc">📅 日期 (远优先)</option>
-            <option value="id_desc">🔢 编号 (新→旧)</option>
-            <option value="id_asc">🔢 编号 (旧→新)</option>
-        </optgroup>
-        <optgroup label="时光旅程">
-            <option value="duration_desc">⏳ 漂流最久</option>
-            <option value="duration_asc">⚡ 漂流最快</option>
-        </optgroup>
-        <optgroup label="地理分布">
-            <option value="area">📍 按国家/地区</option>
-        </optgroup>
-    </select>
-</div>
 
                     <div class="col-12 mt-4 pt-3 border-top">
                         <button class="btn btn-reset-large" @click="resetAll">

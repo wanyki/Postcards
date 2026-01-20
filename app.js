@@ -2,15 +2,18 @@ if (document.getElementById('app')) {
     new Vue({
         el: '#app',
         data: {
-            // 新增 filterCountry
-            filterCountry: '', filterProvince: '', filterCity: '', filterType: '', 
-            filterId: '', filterPlatform: '', filterTag: '',
+            filterCountry: '', 
+            filterProvince: '', 
+            filterCity: '', 
+            filterType: '', 
+            filterId: '', 
+            filterPlatform: '', 
+            filterTag: '',
             sortBy: 'id_desc',
             postcards: typeof postcardData !== 'undefined' ? postcardData : [],
             myChart: null,
             displayCount: 12, 
             mapType: 'china',
-            // 用于 ECharts 全球地图(英文)与数据(中文)的转换
             countryMap: { 
                 "中国": "China", "日本": "Japan", "美国": "United States", 
                 "德国": "Germany", "英国": "United Kingdom", "法国": "France", 
@@ -18,7 +21,6 @@ if (document.getElementById('app')) {
             }
         },
         computed: {
-            // 反向映射表：从 "Japan" 找回 "日本"
             reverseCountryMap() {
                 const rev = {};
                 for (let key in this.countryMap) {
@@ -35,13 +37,11 @@ if (document.getElementById('app')) {
                     countryCount: countries 
                 };
             },
-            // 自动提取数据中存在的所有国家
             countries() {
                 const cs = this.postcards.map(c => c.country || '中国');
                 return [...new Set(cs)].sort();
             },
             provinces() {
-                // 仅当筛选中国或未筛选国家时，显示省份列表
                 const ps = this.postcards
                     .filter(c => !c.country || c.country === '中国')
                     .map(c => {
@@ -61,91 +61,77 @@ if (document.getElementById('app')) {
                 return [...new Set(this.postcards.map(c => c.platform).filter(p => p))];
             },
             allResults() {
-    const kwTag = (this.filterTag || '').toLowerCase();
-    const kwId = (this.filterId || '').toLowerCase();
-    
-    // --- 第一步：过滤逻辑 (保持原有逻辑并增强) ---
-    let results = this.postcards.filter(c => {
-        const cardCountry = c.country || '中国';
-        const mCountry = !this.filterCountry || cardCountry === this.filterCountry;
+                const kwTag = (this.filterTag || '').toLowerCase();
+                const kwId = (this.filterId || '').toLowerCase();
+                
+                let results = this.postcards.filter(c => {
+                    const cardCountry = c.country || '中国';
+                    
+                    // 1. 国家筛选 (优先级最高)
+                    const mCountry = !this.filterCountry || cardCountry === this.filterCountry;
+                    if (!mCountry) return false;
 
-        let mProv = true;
-        let mCity = true;
-        if (cardCountry === '中国') {
-            mProv = !this.filterProvince || (c.region && c.region.includes(this.filterProvince));
-            mCity = !this.filterCity || (c.region && c.region.includes(this.filterCity));
-        }
+                    // 2. 地理明细筛选 (仅当选了中国才生效)
+                    let mGeo = true;
+                    if (this.filterCountry === '中国') {
+                        const mProv = !this.filterProvince || (c.region && c.region.includes(this.filterProvince));
+                        const mCity = !this.filterCity || (c.region && c.region.includes(this.filterCity));
+                        mGeo = mProv && mCity;
+                    }
 
-        const mType = !this.filterType || c.type === this.filterType;
-        const mPlat = !this.filterPlatform || c.platform === this.filterPlatform;
-        const mId = !kwId || c.id.toLowerCase().includes(kwId);
-        
-        const tags = Array.isArray(c.tags) ? c.tags.join(',') : '';
-        const searchPool = [
-            tags, 
-            c.note || '', 
-            c.region || '', 
-            cardCountry,
-            c.person || ''
-        ].join('|').toLowerCase();
-        const mTag = !kwTag || searchPool.includes(kwTag);
+                    // 3. 其他基础筛选
+                    const mType = !this.filterType || c.type === this.filterType;
+                    const mPlat = !this.filterPlatform || c.platform === this.filterPlatform;
+                    const mId = !kwId || c.id.toLowerCase().includes(kwId);
+                    
+                    const tags = Array.isArray(c.tags) ? c.tags.join(',') : '';
+                    const searchPool = [
+                        tags, 
+                        c.note || '', 
+                        c.region || '', 
+                        cardCountry,
+                        c.person || ''
+                    ].join('|').toLowerCase();
+                    const mTag = !kwTag || searchPool.includes(kwTag);
 
-        return mCountry && mProv && mCity && mType && mPlat && mId && mTag;
-    });
+                    return mGeo && mType && mPlat && mId && mTag;
+                });
 
-    // --- 第二步：增强型排序逻辑 ---
-    results.sort((a, b) => {
-        // 预处理日期
-        const dateA = new Date(a.receiveDate || a.sendDate || 0);
-        const dateB = new Date(b.receiveDate || b.sendDate || 0);
+                // 排序逻辑
+                results.sort((a, b) => {
+                    const dateA = new Date(a.receiveDate || a.sendDate || 0);
+                    const dateB = new Date(b.receiveDate || b.sendDate || 0);
 
-        // 辅助：计算漂流天数
-        const getDuration = (card) => {
-            if (!card.receiveDate || !card.sendDate) return 0;
-            const start = new Date(card.sendDate);
-            const end = new Date(card.receiveDate);
-            // 计算差值并转为天数
-            const diff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-            return diff >= 0 ? diff : 0;
-        };
+                    const getDuration = (card) => {
+                        if (!card.receiveDate || !card.sendDate) return 0;
+                        const start = new Date(card.sendDate);
+                        const end = new Date(card.receiveDate);
+                        const diff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+                        return diff >= 0 ? diff : 0;
+                    };
 
-        switch (this.sortBy) {
-            // 1. 编号排序 (支持混有字母的数字排序)
-            case 'id_desc': 
-                return b.id.localeCompare(a.id, undefined, {numeric: true});
-            case 'id_asc':  
-                return a.id.localeCompare(b.id, undefined, {numeric: true});
+                    switch (this.sortBy) {
+                        case 'id_desc': return b.id.localeCompare(a.id, undefined, {numeric: true});
+                        case 'id_asc':  return a.id.localeCompare(b.id, undefined, {numeric: true});
+                        case 'date_desc': return dateB - dateA;
+                        case 'date_asc':  return dateA - dateB;
+                        case 'duration_desc': return getDuration(b) - getDuration(a);
+                        case 'duration_asc':  return getDuration(a) - getDuration(b);
+                        case 'area': 
+                            const cA = a.country || '中国';
+                            const cB = b.country || '中国';
+                            if (cA !== cB) return cA.localeCompare(cB);
+                            return (a.region || '').localeCompare(b.region || '');
+                        default: return 0;
+                    }
+                });
 
-            // 2. 日期排序 (修复原本 localeCompare 字符串比较不准的问题)
-            case 'date_desc': 
-                return dateB - dateA;
-            case 'date_asc':  
-                return dateA - dateB;
-
-            // 3. 漂流时长排序
-            case 'duration_desc': 
-                return getDuration(b) - getDuration(a);
-            case 'duration_asc':  
-                return getDuration(a) - getDuration(b);
-
-            // 4. 地理位置排序 (先国家后省份)
-            case 'area': 
-                const cA = a.country || '中国';
-                const cB = b.country || '中国';
-                if (cA !== cB) return cA.localeCompare(cB);
-                return (a.region || '').localeCompare(b.region || '');
-
-            default: return 0;
-        }
-    });
-
-    return results;
-},
+                return results;
+            },
             displayCards() { return this.allResults.slice(0, this.displayCount); },
             totalFilteredCount() { return this.allResults.length; }
         },
         watch: {
-            // 当筛选条件变化，重置分页并更新地图高亮
             allResults() { 
                 this.displayCount = 12; 
                 this.updateMap(); 
@@ -156,9 +142,15 @@ if (document.getElementById('app')) {
             window.addEventListener('resize', () => this.myChart && this.myChart.resize());
         },
         methods: {
+            handleCountryChange() {
+                // 如果国家不是中国，清空省份和城市筛选
+                if (this.filterCountry !== '中国') {
+                    this.filterProvince = '';
+                    this.filterCity = '';
+                }
+            },
             toggleMap(type) { 
                 this.mapType = type; 
-                // 切换地图时，建议重置部分地理筛选以防冲突
                 this.filterProvince = '';
                 this.filterCountry = '';
                 this.updateMap(); 
@@ -174,18 +166,15 @@ if (document.getElementById('app')) {
                 if (!dom) return;
                 this.myChart = echarts.init(dom);
                 
-                // 地图点击联动修复
                 this.myChart.on('click', (p) => { 
                     if (this.mapType === 'china') {
                         this.filterCountry = '中国';
                         this.filterProvince = p.name;
                     } else {
-                        // 如果点击的是全球地图，通过反向映射表转回中文名
                         const chineseName = this.reverseCountryMap[p.name] || p.name;
                         this.filterCountry = chineseName;
-                        this.filterProvince = ''; // 选了国家，清空中国的省份
+                        this.filterProvince = ''; 
                     }
-                    // 点击后自动滚动到列表
                     const el = document.querySelector('.main-grid');
                     if(el) el.scrollIntoView({ behavior: 'smooth' });
                 });
