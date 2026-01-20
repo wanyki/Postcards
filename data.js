@@ -1488,5 +1488,17 @@ const postcardData = [
   "receiveDate": "2026-01-20",
   "person": "Silence",
   "platform": "Post-Hi"
+},{
+  "id": "PHCNSC-1543",
+  "type": "寄出",
+  "country": "中国",
+  "region": "上海闵行区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1543图像面.jpg",
+  "sendDate": "2026-01-10",
+  "receiveDate": "2026-01-16",
+  "person": "ahy",
+  "platform": "Post-Hi"
 },
 ];
