@@ -1500,5 +1500,17 @@ const postcardData = [
   "receiveDate": "2026-01-16",
   "person": "ahy",
   "platform": "Post-Hi"
+},{
+  "id": "PHCNSC-1592",
+  "type": "寄出",
+  "country": "中国",
+  "region": "广东东莞",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1592图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-20",
+  "person": "礼一",
+  "platform": "Post-Hi"
 },
 ];
