@@ -1536,5 +1536,17 @@ const postcardData = [
   "receiveDate": "2026-01-20",
   "person": "宇智波派大星",
   "platform": "Post-Hi"
+},{
+  "id": "SC-2848",
+  "type": "寄出",
+  "country": "中国",
+  "region": "山西晋城",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-2848图像面.jpg",
+  "sendDate": "2026-01-18",
+  "receiveDate": "2026-01-21",
+  "person": "江南",
+  "platform": "Manyour"
 },
 ];
