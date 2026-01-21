@@ -1548,5 +1548,17 @@ const postcardData = [
   "receiveDate": "2026-01-21",
   "person": "江南",
   "platform": "Manyour"
+},{
+  "id": "PHCNSC-1604",
+  "type": "寄出",
+  "country": "中国",
+  "region": "北京东城区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1604图像面.jpg",
+  "sendDate": "2026-01-19",
+  "receiveDate": "2026-01-21",
+  "person": "凉拌炒鸡蛋",
+  "platform": "Post-Hi"
 },
 ];
