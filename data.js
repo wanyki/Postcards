@@ -1524,5 +1524,17 @@ const postcardData = [
   "receiveDate": "2026-01-18",
   "person": "文意",
   "platform": "自寄"
+},{
+  "id": "PHCNSC-1593",
+  "type": "寄出",
+  "country": "中国",
+  "region": "上海普陀区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1593图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-20",
+  "person": "宇智波派大星",
+  "platform": "Post-Hi"
 },
 ];
