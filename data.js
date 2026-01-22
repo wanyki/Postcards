@@ -1560,5 +1560,41 @@ const postcardData = [
   "receiveDate": "2026-01-21",
   "person": "凉拌炒鸡蛋",
   "platform": "Post-Hi"
+},{
+  "id": "CNHL-4759",
+  "type": "收到",
+  "country": "中国",
+  "region": "黑龙江七台河",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/CNHL-4759图像面.jpg",
+  "sendDate": "2026-01-12",
+  "receiveDate": "2026-01-22",
+  "person": "阿七",
+  "platform": "ICY"
+},{
+  "id": "PHCNHI-0419",
+  "type": "收到",
+  "country": "中国",
+  "region": "海南三亚",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNHI-0419图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-22",
+  "person": "坑坑",
+  "platform": "Post-Hi"
+},{
+  "id": "PHCNSH-4260",
+  "type": "收到",
+  "country": "中国",
+  "region": "上海闵行区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSH-4260图像面.jpg",
+  "sendDate": "2026-01-19",
+  "receiveDate": "2026-01-22",
+  "person": "ahy",
+  "platform": "Post-Hi"
 },
 ];
