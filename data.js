@@ -1596,5 +1596,29 @@ const postcardData = [
   "receiveDate": "2026-01-22",
   "person": "ahy",
   "platform": "Post-Hi"
+},{
+  "id": "SC-002820",
+  "type": "寄出",
+  "country": "中国",
+  "region": "广东东莞",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-002820图像面.jpg",
+  "sendDate": "2026-01-16",
+  "receiveDate": "2026-01-23",
+  "person": "caia97",
+  "platform": "Manyour"
+},{
+  "id": "SC-002825",
+  "type": "寄出",
+  "country": "中国",
+  "region": "广东东莞",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-002825图像面.jpg",
+  "sendDate": "2026-01-16",
+  "receiveDate": "2026-01-22",
+  "person": "caia97",
+  "platform": "Manyour"
 },
 ];
