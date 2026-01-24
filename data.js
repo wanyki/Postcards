@@ -1620,5 +1620,41 @@ const postcardData = [
   "receiveDate": "2026-01-22",
   "person": "caia97",
   "platform": "Manyour"
+},{
+  "id": "PHCNSC-1590",
+  "type": "寄出",
+  "country": "中国",
+  "region": "湖南怀化",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1590图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-24",
+  "person": "四圆",
+  "platform": "Post-Hi"
+},{
+  "id": "PHCNSC-1591",
+  "type": "寄出",
+  "country": "中国",
+  "region": "广东汕头",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNSC-1591图像面.jpg",
+  "sendDate": "2026-01-17",
+  "receiveDate": "2026-01-24",
+  "person": "马俊烁",
+  "platform": "Post-Hi"
+},{
+  "id": "SC-2847",
+  "type": "寄出",
+  "country": "中国",
+  "region": "广东湛江",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/SC-2847图像面.jpg",
+  "sendDate": "2026-01-18",
+  "receiveDate": "2026-01-24",
+  "person": "王百万",
+  "platform": "Manyour"
 },
 ];
