@@ -1656,5 +1656,17 @@ const postcardData = [
   "receiveDate": "2026-01-24",
   "person": "王百万",
   "platform": "Manyour"
+},{
+  "id": "PHCNBJ-3311",
+  "type": "收到",
+  "country": "中国",
+  "region": "北京东城区",
+  "note": "",
+  "tags": [],
+  "imgFront": "./images/PHCNBJ-3311图像面.jpg",
+  "sendDate": "2026-01-22",
+  "receiveDate": "2026-01-25",
+  "person": "凉拌炒鸡蛋",
+  "platform": "Post-Hi"
 },
 ];
