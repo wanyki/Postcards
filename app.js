@@ -1,7 +1,16 @@
+// ⚠️ 你的 Supabase 配置
+const supabaseUrl = 'https://ulhisqjzcruraoqvoagc.supabase.co';
+const supabaseKey = 'sb_publishable_lneCbBRiTL4tAKv32Nedcw_qSF3IBrq';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
 if (document.getElementById('app')) {
     new Vue({
         el: '#app',
         data: {
+            postcards: [], // 初始为空，等待数据加载
+            loading: true,
+            
+            // 筛选条件
             filterCountry: '', 
             filterProvince: '', 
             filterCity: '', 
@@ -10,10 +19,13 @@ if (document.getElementById('app')) {
             filterPlatform: '', 
             filterTag: '',
             sortBy: 'id_desc',
-            postcards: typeof postcardData !== 'undefined' ? postcardData : [],
-            myChart: null,
+            
+            // 页面控制
             displayCount: 12, 
             mapType: 'china',
+            myChart: null,
+            
+            // 映射字典
             countryMap: { 
                 "中国": "China", "日本": "Japan", "美国": "United States", 
                 "德国": "Germany", "英国": "United Kingdom", "法国": "France", 
@@ -54,12 +66,15 @@ if (document.getElementById('app')) {
                 return [...new Set(ps)].sort();
             },
             availableCities() {
+                // 确保 chinaData 存在（通常在 cityData.js 里定义）
                 if (!this.filterProvince || typeof chinaData === 'undefined') return [];
                 return chinaData[this.filterProvince] || [];
             },
             platforms() {
                 return [...new Set(this.postcards.map(c => c.platform).filter(p => p))];
             },
+            
+            // --- 核心逻辑：筛选与排序 ---
             allResults() {
                 const kwTag = (this.filterTag || '').toLowerCase();
                 const kwId = (this.filterId || '').toLowerCase();
@@ -67,7 +82,7 @@ if (document.getElementById('app')) {
                 let results = this.postcards.filter(c => {
                     const cardCountry = c.country || '中国';
                     
-                    // 1. 国家筛选 (优先级最高)
+                    // 1. 国家筛选
                     const mCountry = !this.filterCountry || cardCountry === this.filterCountry;
                     if (!mCountry) return false;
 
@@ -82,8 +97,9 @@ if (document.getElementById('app')) {
                     // 3. 其他基础筛选
                     const mType = !this.filterType || c.type === this.filterType;
                     const mPlat = !this.filterPlatform || c.platform === this.filterPlatform;
-                    const mId = !kwId || c.id.toLowerCase().includes(kwId);
+                    const mId = !kwId || (c.id && c.id.toLowerCase().includes(kwId));
                     
+                    // 4. 标签/关键词搜索 (搜索范围：tags, note, region, person)
                     const tags = Array.isArray(c.tags) ? c.tags.join(',') : '';
                     const searchPool = [
                         tags, 
@@ -111,8 +127,8 @@ if (document.getElementById('app')) {
                     };
 
                     switch (this.sortBy) {
-                        case 'id_desc': return b.id.localeCompare(a.id, undefined, {numeric: true});
-                        case 'id_asc':  return a.id.localeCompare(b.id, undefined, {numeric: true});
+                        case 'id_desc': return (b.id || '').localeCompare(a.id || '', undefined, {numeric: true});
+                        case 'id_asc':  return (a.id || '').localeCompare(b.id || '', undefined, {numeric: true});
                         case 'date_desc': return dateB - dateA;
                         case 'date_asc':  return dateA - dateB;
                         case 'duration_desc': return getDuration(b) - getDuration(a);
@@ -132,18 +148,62 @@ if (document.getElementById('app')) {
             totalFilteredCount() { return this.allResults.length; }
         },
         watch: {
+            // 当筛选结果变化时，重置页数并更新地图
             allResults() { 
                 this.displayCount = 12; 
                 this.updateMap(); 
             }
         },
         mounted() {
+            this.fetchData();
             this.initMap();
             window.addEventListener('resize', () => this.myChart && this.myChart.resize());
         },
         methods: {
+            async fetchData() {
+                try {
+                    // 从 Supabase 获取数据
+                    let { data, error } = await supabaseClient
+                        .from('postcard')
+                        .select('*');
+
+                    if (error) throw error;
+
+                    // 数据映射：将数据库字段转为 Vue 使用的驼峰字段
+                    this.postcards = data.map(item => {
+                        let tags = item.tags;
+                        if (typeof tags === 'string') {
+                            tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
+                        } else if (!tags) tags = [];
+
+                        return {
+                            ...item,
+                            id: item.id,
+                            type: item.type,
+                            country: item.country,
+                            region: item.region,
+                            note: item.note,
+                            tags: tags,
+                            imgFront: item.imgFront || item.imgfront || item.image_path,
+                            sendDate: item.sendDate || item.senddate || item.send_date,
+                            receiveDate: item.receiveDate || item.receivedate || item.receive_date,
+                            person: item.person,
+                            platform: item.platform
+                        };
+                    });
+                    
+                    this.loading = false;
+                    // 数据加载后更新地图
+                    this.$nextTick(() => {
+                        this.updateMap();
+                    });
+
+                } catch (e) {
+                    console.error('Data Load Error:', e);
+                    this.loading = false;
+                }
+            },
             handleCountryChange() {
-                // 如果国家不是中国，清空省份和城市筛选
                 if (this.filterCountry !== '中国') {
                     this.filterProvince = '';
                     this.filterCity = '';
@@ -175,6 +235,7 @@ if (document.getElementById('app')) {
                         this.filterCountry = chineseName;
                         this.filterProvince = ''; 
                     }
+                    // 点击地图后滚动到筛选区
                     const el = document.querySelector('.main-grid');
                     if(el) el.scrollIntoView({ behavior: 'smooth' });
                 });
@@ -185,6 +246,7 @@ if (document.getElementById('app')) {
                 if (!this.myChart) return;
                 const stats = {};
                 
+                // 聚合数据逻辑
                 this.postcards.forEach(c => {
                     let key = "";
                     if (this.mapType === 'china') {

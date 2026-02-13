@@ -184,15 +184,20 @@
             <span class="d-none d-sm-inline">明信片档案详情</span>
             <span class="d-inline d-sm-none">档案详情</span>
         </div>
-        <a href="index.html" class="btn-back">
-            <i class="bi bi-arrow-left me-1"></i> 返回主页
+        <a href="archive.html" class="btn-back">
+            <i class="bi bi-arrow-left me-1"></i> 返回画廊
         </a>
     </div>
 </header>
 
 <main class="main-container">
     <div class="container-wide">
-        <div id="detail-root"></div>
+        <div id="detail-root">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-3">正在从云端读取档案...</p>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -200,8 +205,14 @@
     <img id="imgModalImg" src="">
 </div>
 
-<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+    // Supabase 配置
+    const supabaseUrl = 'https://ulhisqjzcruraoqvoagc.supabase.co';
+    const supabaseKey = 'sb_publishable_lneCbBRiTL4tAKv32Nedcw_qSF3IBrq';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
     function getQueryId() {
         return new URLSearchParams(window.location.search).get('id');
     }
@@ -212,81 +223,121 @@
         return diff >= 0 ? diff : 0;
     }
 
-    function render() {
+    // 核心渲染逻辑 (异步)
+    async function render() {
         const id = getQueryId();
         const root = document.getElementById('detail-root');
-        if (typeof postcardData === 'undefined') return;
 
-        const card = postcardData.find(c => c.id === id);
-        if (!card) {
-            root.innerHTML = `<div class="text-center py-5"><h5>档案未找到</h5><a href="index.html" class="btn btn-primary mt-3">返回主页</a></div>`;
+        if (!id) {
+            root.innerHTML = `<div class="text-center py-5"><h5>无效的档案编号</h5><a href="archive.html" class="btn btn-primary mt-3">返回画廊</a></div>`;
             return;
         }
 
-        const drift = getDriftDays(card.sendDate, card.receiveDate);
-        const tags = Array.isArray(card.tags) ? card.tags : [];
+        try {
+            // 从 Supabase 查找单条记录
+            let { data, error } = await supabaseClient
+                .from('postcard') // 这里的表名一定要和你的数据库一致（之前确认是单数 postcard）
+                .select('*')
+                .eq('id', id)
+                .single(); // 只取一条
 
-        root.innerHTML = `
-            <div class="detail-card">
-                <div class="row g-0">
-                    <div class="col-lg-8 image-side">
-                        <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
-                            <img src="${card.imgFront}" alt="Postcard Side">
-                        </div>
-                    </div>
+            if (error) throw error;
+            if (!data) throw new Error("Card not found");
 
-                    <div class="col-lg-4 info-side">
-                        <div class="badge-id">ID: ${card.id}</div>
-                        
-                      
-<h2 class="user-region-title">
-    ${card.person || '佚名'} - ${card.region || card.country || '海外'}
-</h2>
-                        <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
-                            <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
-                            <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
-                            <span class="ms-1 text-muted small fw-bold" style="letter-spacing:0.5px">
-                                <i class="bi bi-globe2 me-1"></i>${card.platform || '个人交换'}
-                            </span>
-                        </div>
+            // 数据清洗 & 字段映射
+            let tags = data.tags;
+            if (typeof tags === 'string') {
+                tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
+            } else if (!tags) tags = [];
 
-                        <div class="drift-box">
-                            <div class="row text-center g-0">
-                                <div class="col-5">
-                                    <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">寄出 Sent</label>
-                                    <div class="fw-bold">${card.sendDate || '—'}</div>
-                                </div>
-                                <div class="col-2 d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-arrow-right-short text-muted fs-4"></i>
-                                </div>
-                                <div class="col-5">
-                                    <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">收到 Received</label>
-                                    <div class="fw-bold">${card.receiveDate || '—'}</div>
-                                </div>
-                            </div>
-                            <div class="drift-line"></div>
-                            <div class="text-center">
-                                ${drift !== null ? 
-                                    `<span class="fw-bold text-primary small"><i class="bi bi-clock-fill me-1"></i> 漂流旅程：${drift} 天</span>` : 
-                                    `<span class="text-muted small">漂流时间不详</span>`
-                                }
+            const card = {
+                ...data,
+                id: data.id,
+                type: data.type,
+                country: data.country,
+                region: data.region,
+                note: data.note,
+                tags: tags,
+                // 图片路径映射
+                imgFront: data.imgFront || data.imgfront || data.image_path,
+                sendDate: data.sendDate || data.senddate || data.send_date,
+                receiveDate: data.receiveDate || data.receivedate || data.receive_date,
+                person: data.person,
+                platform: data.platform
+            };
+
+            const drift = getDriftDays(card.sendDate, card.receiveDate);
+
+            // 渲染 HTML
+            root.innerHTML = `
+                <div class="detail-card">
+                    <div class="row g-0">
+                        <div class="col-lg-8 image-side">
+                            <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
+                                <img src="${card.imgFront}" alt="Postcard Side">
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="small text-muted fw-bold mb-2 d-block" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">档案备注 Note</label>
-                            <div class="note-area shadow-sm">
-                                ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
+                        <div class="col-lg-4 info-side">
+                            <div class="badge-id">ID: ${card.id}</div>
+                            
+                            <h2 class="user-region-title">
+                                ${card.person || '佚名'} - ${card.region || card.country || '海外'}
+                            </h2>
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
+                                <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
+                                <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
+                                <span class="ms-1 text-muted small fw-bold" style="letter-spacing:0.5px">
+                                    <i class="bi bi-globe2 me-1"></i>${card.platform || '个人交换'}
+                                </span>
                             </div>
-                        </div>
 
-                        <div class="tag-container">
-                            ${tags.map(t => `<span class="tag-pill"># ${t}</span>`).join('')}
+                            <div class="drift-box">
+                                <div class="row text-center g-0">
+                                    <div class="col-5">
+                                        <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">寄出 Sent</label>
+                                        <div class="fw-bold">${card.sendDate || '—'}</div>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-arrow-right-short text-muted fs-4"></i>
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">收到 Received</label>
+                                        <div class="fw-bold">${card.receiveDate || '—'}</div>
+                                    </div>
+                                </div>
+                                <div class="drift-line"></div>
+                                <div class="text-center">
+                                    ${drift !== null ? 
+                                        `<span class="fw-bold text-primary small"><i class="bi bi-clock-fill me-1"></i> 漂流旅程：${drift} 天</span>` : 
+                                        `<span class="text-muted small">漂流时间不详</span>`
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small text-muted fw-bold mb-2 d-block" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">档案备注 Note</label>
+                                <div class="note-area shadow-sm">
+                                    ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
+                                </div>
+                            </div>
+
+                            <div class="tag-container">
+                                ${tags.map(t => `<span class="tag-pill"># ${t}</span>`).join('')}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+
+        } catch (e) {
+            console.error(e);
+            root.innerHTML = `<div class="text-center py-5">
+                <h5>💔 档案读取失败</h5>
+                <p class="text-muted small">${e.message}</p>
+                <a href="archive.html" class="btn btn-primary mt-3">返回画廊</a>
+            </div>`;
+        }
     }
 
     window.onload = render;
