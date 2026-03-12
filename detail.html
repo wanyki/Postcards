@@ -274,7 +274,7 @@
                     <div class="row g-0">
                         <div class="col-lg-8 image-side">
                             <div class="img-wrapper" onclick="document.getElementById('imgModalImg').src=this.querySelector('img').src; document.getElementById('imgModal').style.display='flex'">
-                                <img src="${card.imgFront}" alt="Postcard Side">
+                                <img src="${card.imgFront}?t=${new Date().getTime()}" alt="Postcard Side">
                             </div>
                         </div>
 
