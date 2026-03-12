@@ -18,7 +18,7 @@ if (document.getElementById('app')) {
             filterId: '', 
             filterPlatform: '', 
             filterTag: '',
-            sortBy: 'id_desc',
+            sortBy: 'date_desc', // 👈 仅修改了这里：默认按照日期近优先排序
             
             // 页面控制
             displayCount: 12, 
@@ -219,7 +219,8 @@ if (document.getElementById('app')) {
                 this.filterCountry = ''; this.filterProvince = ''; 
                 this.filterCity = ''; this.filterType = '';
                 this.filterId = ''; this.filterPlatform = ''; this.filterTag = '';
-                this.sortBy = 'id_desc'; this.displayCount = 12;
+                // ⚠️ 为了保持一致，重置时也恢复为日期近优先
+                this.sortBy = 'date_desc'; this.displayCount = 12;
             },
             initMap() {
                 const dom = document.getElementById('map-container');

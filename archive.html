@@ -186,7 +186,7 @@
                     <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none text-reset">
                         <div class="postcard-item shadow-sm">
                             <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
-                            <img :src="card.imgFront" class="postcard-img" loading="lazy">
+                            <img :src="card.imgFront + '?t=' + new Date().getTime()" class="postcard-img" loading="lazy">
                             <div class="card-body">
                                 <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
                                 <div class="d-flex justify-content-between align-items-center small text-muted">
