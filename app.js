@@ -29,7 +29,8 @@ if (document.getElementById('app')) {
             countryMap: { 
                 "中国": "China", "日本": "Japan", "美国": "United States", 
                 "德国": "Germany", "英国": "United Kingdom", "法国": "France", 
-                "韩国": "Korea", "俄罗斯": "Russia", "加拿大": "Canada", "澳大利亚": "Australia"
+                "韩国": "Korea", "俄罗斯": "Russia", "加拿大": "Canada", "澳大利亚": "Australia",
+                "泰国": "Thailand", "意大利": "Italy", "西班牙": "Spain", "荷兰": "Netherlands"
             }
         },
         computed: {
