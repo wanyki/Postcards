@@ -173,7 +173,12 @@
 
             <div class="d-flex justify-content-between align-items-end mb-4 px-2">
                 <h4 class="fw-bold m-0">🖼️ 记忆画廊</h4>
-                <small class="text-muted fw-normal">Matching {{ totalFilteredCount }} items</small>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="timeline.html" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3">
+                        <i class="fa-solid fa-calendar-days me-1"></i>日期筛选
+                    </a>
+                    <small class="text-muted fw-normal">Matching {{ totalFilteredCount }} items</small>
+                </div>
             </div>
 
             <div v-if="loading" class="text-center py-5">
