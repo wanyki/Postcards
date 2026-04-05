@@ -26,13 +26,101 @@ if (document.getElementById('app')) {
             myChart: null,
             
             // 映射字典
-            countryMap: { 
-                "中国": "China", "日本": "Japan", "美国": "United States", 
-                "德国": "Germany", "英国": "United Kingdom", "法国": "France", 
-                "韩国": "Korea", "俄罗斯": "Russia", "加拿大": "Canada", "澳大利亚": "Australia",
-                "泰国": "Thailand", "意大利": "Italy", "西班牙": "Spain", "荷兰": "Netherlands",
-                "白俄罗斯": "Belarus", "瑞士": "Switzerland", "瑞典": "Sweden", "挪威": "Norway",
-            }
+           countryMap: {
+    // ==================== 亚洲 ====================
+    "中国": "China",
+    "日本": "Japan",
+    "韩国": "Korea",
+    "朝鲜": "North Korea",
+    "新加坡": "Singapore",
+    "马来西亚": "Malaysia",
+    "印度尼西亚": "Indonesia",
+    "印度": "India",
+    "巴基斯坦": "Pakistan",
+    "孟加拉国": "Bangladesh",
+    "菲律宾": "Philippines",
+    "越南": "Vietnam",
+    "泰国": "Thailand",
+    "缅甸": "Myanmar",
+    "柬埔寨": "Cambodia",
+    "老挝": "Laos",
+    "蒙古": "Mongolia",
+    "尼泊尔": "Nepal",
+    "斯里兰卡": "Sri Lanka",
+    "阿联酋": "United Arab Emirates",
+    "沙特阿拉伯": "Saudi Arabia",
+    "土耳其": "Turkey",
+    "以色列": "Israel",
+    "伊朗": "Iran",
+    "伊拉克": "Iraq",
+    "卡塔尔": "Qatar",
+    "科威特": "Kuwait",
+
+    // ==================== 欧洲 ====================
+    "俄罗斯": "Russia",
+    "德国": "Germany",
+    "英国": "United Kingdom",
+    "法国": "France",
+    "白俄罗斯": "Belarus",
+    "瑞士": "Switzerland",
+    "瑞典": "Sweden",
+    "挪威": "Norway",
+    "乌克兰": "Ukraine",
+    "波兰": "Poland",
+    "罗马尼亚": "Romania",
+    "匈牙利": "Hungary",
+    "捷克": "Czech Republic",
+    "奥地利": "Austria",
+    "丹麦": "Denmark",
+    "芬兰": "Finland",
+    "冰岛": "Iceland",
+    "爱尔兰": "Ireland",
+    "葡萄牙": "Portugal",
+    "希腊": "Greece",
+    "比利时": "Belgium",
+    "卢森堡": "Luxembourg",
+    "保加利亚": "Bulgaria",
+    "塞尔维亚": "Serbia",
+    "克罗地亚": "Croatia",
+    "斯洛文尼亚": "Slovenia",
+    "立陶宛": "Lithuania",
+    "拉脱维亚": "Latvia",
+    "爱沙尼亚": "Estonia",
+    "意大利": "Italy",
+    "西班牙": "Spain",
+    "荷兰": "Netherlands",
+
+    // ==================== 非洲 ====================
+    "南非": "South Africa",
+    "埃及": "Egypt",
+    "尼日利亚": "Nigeria",
+    "肯尼亚": "Kenya",
+    "阿尔及利亚": "Algeria",
+    "摩洛哥": "Morocco",
+    "埃塞俄比亚": "Ethiopia",
+    "加纳": "Ghana",
+
+    // ==================== 北美洲 ====================
+    "美国": "United States",
+    "加拿大": "Canada",
+    "墨西哥": "Mexico",
+    "古巴": "Cuba",
+    "巴拿马": "Panama",
+
+    // ==================== 南美洲 ====================
+    "巴西": "Brazil",
+    "阿根廷": "Argentina",
+    "智利": "Chile",
+    "秘鲁": "Peru",
+    "哥伦比亚": "Colombia",
+    "委内瑞拉": "Venezuela",
+
+    // ==================== 大洋洲 ====================
+    "澳大利亚": "Australia",
+    "新西兰": "New Zealand",
+    "斐济": "Fiji",
+    "巴布亚新几内亚": "Papua New Guinea"
+}
         },
         computed: {
             reverseCountryMap() {
