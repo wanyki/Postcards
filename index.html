@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的明信片足迹 📊</title>
+    <title>我的明信片足迹 📮</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --info: #4895ef;
-            --warning: #f72585;
-            --bg: #f8f9fa;
-            --card-bg: #ffffff;
+            --success: #2ec4b6;
+            --info: #3a86ff;
+            --warning: #ff9f1c;
+            --bg: #f0f2f5;
         }
 
         body {
@@ -24,327 +22,278 @@
             padding-bottom: 50px;
         }
 
-        /* 顶部导航 */
-        .glass-header {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-
-        /* 卡片通用样式 */
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            overflow: hidden;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-        }
-
-        .card-header-custom {
-            background: transparent;
-            padding: 20px 25px 0;
-            border: none;
-        }
-        .card-title {
-            font-weight: 700;
-            color: #1a1a1a;
-            font-size: 1.1rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* KPI 数字卡片 */
-        .kpi-box {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
-        .kpi-icon {
-            width: 50px; height: 50px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-            margin-right: 15px;
-            background: #f0f4ff;
-            color: var(--primary);
-        }
-        .kpi-data h3 { font-weight: 800; margin: 0; font-size: 1.8rem; letter-spacing: -1px; }
-        .kpi-data p { margin: 0; color: #6c757d; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
-
-        /* 趣味榜单文字样式 */
-        .fun-fact-item {
-            padding: 15px;
-            border-bottom: 1px solid #f1f1f1;
-        }
-        .fun-fact-item:last-child { border-bottom: none; }
-        .fun-label { font-size: 0.9rem; color: #666; margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .fun-value { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
-        .fun-sub { font-size: 0.8rem; color: #999; }
-
-        /* === ✨ 新增：高级加载动画样式 === */
-        .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(248, 249, 250, 0.98);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* 顶部统计卡片 */
+        .stat-container { 
+            display: flex; 
+            gap: 15px; 
+            margin: 20px 0 25px; 
         }
         
-        .loader-icon-container {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin-bottom: 30px;
+        @media (max-width: 768px) {
+            .stat-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
-        .world-icon {
-            font-size: 3rem;
-            color: #e2e8f0;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.8);
         }
 
-        .plane-icon {
-            position: absolute;
-            font-size: 2rem;
-            color: var(--primary);
-            top: 0; left: 0;
-            animation: flight 2.5s infinite linear;
+        .stat-icon {
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            flex-shrink: 0;
         }
 
-        .loading-text {
-            font-weight: 700;
-            color: #64748b;
-            letter-spacing: 1px;
-            animation: pulse-text 1.5s infinite ease-in-out;
+        .stat-info .label { font-size: 0.7rem; color: #8d99ae; font-weight: 600; text-transform: uppercase; }
+        .stat-info .value { font-size: 1.3rem; font-weight: 800; display: block; }
+
+        /* 主体布局控制 */
+        .main-grid { display: flex; gap: 24px; align-items: flex-start; }
+        .content-left { flex: 1; min-width: 0; } 
+        .sidebar-right { width: 340px; flex-shrink: 0; position: sticky; top: 20px; }
+
+        @media (max-width: 992px) {
+            .main-grid { flex-direction: column; }
+            .sidebar-right { 
+                width: 100%; 
+                position: static; 
+                order: -1; 
+                margin-bottom: 20px;
+            }
+            #map-container { height: 350px !important; }
         }
 
-        .loading-bar-container {
-            width: 200px;
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            margin-top: 15px;
-            overflow: hidden;
+        /* 地图卡片 */
+        .map-card {
+            background: white; border-radius: 24px; padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+        #map-container { width: 100%; height: 500px; border-radius: 16px; }
+
+        /* 筛选器卡片 */
+        .filter-card {
+            background: #fff; border-radius: 24px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02);
+        }
+        .filter-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 20px; color: #1a1c2c; }
+        .form-label { font-weight: 700; font-size: 0.8rem; color: #4a4e69; margin-bottom: 6px; }
+        .form-control, .form-select {
+            border-radius: 12px; border: 1px solid #edf2f7; background: #f8fafc;
+            padding: 10px 15px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .form-control:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+
+        /* 画廊项目 */
+        .postcard-item {
+            background: white; border-radius: 22px; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #f1f5f9; position: relative; height: 100%;
+        }
+        .postcard-item:hover { transform: translateY(-8px); box-shadow: 0 20px 30px rgba(0,0,0,0.08); }
+        .postcard-img { width: 100%; height: 180px; object-fit: cover; }
+        
+        @media (min-width: 768px) {
+            .postcard-img { height: 200px; }
         }
 
-        .loading-bar {
-            height: 100%;
-            width: 50%;
-            background: var(--primary);
-            border-radius: 10px;
-            animation: loading-slide 1.5s infinite ease-in-out;
+        .card-body { padding: 15px; }
+        .card-tag {
+            position: absolute; top: 12px; right: 12px; padding: 5px 12px;
+            border-radius: 12px; font-size: 0.65rem; font-weight: 800; color: white;
+            z-index: 2; text-transform: uppercase;
         }
 
-        @keyframes flight {
-            0% { transform: translate(10px, 40px) rotate(0deg); opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: translate(60px, -20px) rotate(-45deg); opacity: 0; }
+        /* 按钮 */
+        .btn-reset-large {
+            background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;
+            padding: 12px; border-radius: 14px; font-weight: 700; width: 100%;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-reset-large:hover { background: #fee2e2; color: #ef476f; border-color: #fecaca; }
+        
+        .btn-load-more {
+            background: white; color: var(--primary); border: 2px solid var(--primary);
+            padding: 12px 40px; border-radius: 15px; font-weight: 700; transition: all 0.2s;
+        }
+        .btn-load-more:hover { background: var(--primary); color: white; }
+
+        @media (max-width: 576px) {
+            .row.g-2 { --bs-gutter-x: 10px; --bs-gutter-y: 10px; }
+            .postcard-img { height: 140px; }
+            .card-body h6 { font-size: 0.85rem; }
         }
 
-        @keyframes loading-slide {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(200%); }
-        }
-
-        @keyframes pulse-text {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        /* 隐藏 Vue 未编译内容 */
-        [v-cloak] { display: none; }
+        [v-cloak] { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="app" v-cloak>
-    
-    <div v-if="loading" class="loading-overlay">
-        <div class="loader-icon-container">
-            <i class="fa-solid fa-earth-asia world-icon"></i>
-            <i class="fa-solid fa-paper-plane plane-icon"></i>
+<div id="app" class="container-fluid px-2 px-md-4 px-lg-5" v-cloak>
+    <div class="stat-container">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(67, 97, 238, 0.1); color: var(--primary);"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stat-info"><span class="label">Total</span><span class="value">{{ postcards.length }}</span></div>
         </div>
-        <div class="loading-text">正在加载足迹...</div>
-        <div class="loading-bar-container">
-            <div class="loading-bar"></div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(46, 196, 182, 0.1); color: var(--success);"><i class="fa-solid fa-inbox"></i></div>
+            <div class="stat-info"><span class="label">Received</span><span class="value">{{ stats.receiveCount }}</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(58, 134, 255, 0.1); color: var(--info);"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="stat-info"><span class="label">Sent</span><span class="value">{{ stats.sendCount }}</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(255, 159, 28, 0.1); color: var(--warning);"><i class="fa-solid fa-earth-asia"></i></div>
+            <div class="stat-info"><span class="label">Regions</span><span class="value">{{ stats.countryCount }}</span></div>
         </div>
     </div>
 
-    <div v-else>
-        <header class="glass-header">
-            <div class="container d-flex justify-content-between align-items-center">
-                <div class="h4 mb-0 fw-bold"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>数据驾驶舱</div>
-                
-                <div class="d-flex gap-2">
-                    <a href="timeline.html" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+    <div class="main-grid">
+        <div class="content-left">
+            <div class="map-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0"><i class="fa-solid fa-map-marked-alt me-2 text-primary"></i>足迹热力分布</h5>
+                    <div class="btn-group btn-group-sm rounded-pill overflow-hidden border">
+                        <button class="btn px-3 px-md-4" :class="mapType === 'china' ? 'btn-primary' : 'btn-light'" @click="toggleMap('china')">国内</button>
+                        <button class="btn px-3 px-md-4" :class="mapType === 'world' ? 'btn-primary' : 'btn-light'" @click="toggleMap('world')">全球</button>
+                    </div>
+                </div>
+                <div id="map-container"></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+                <h4 class="fw-bold m-0">🖼️ 记忆画廊</h4>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="timeline.html" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3">
                         <i class="fa-solid fa-calendar-days me-1"></i>日期筛选
                     </a>
-                    <a href="archive.html" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="fa-solid fa-images me-2"></i>查看明信片墙
+                    <a href="dashboard.html" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3">
+                        <i class="fa-solid fa-chart-pie me-1"></i>数据中心
                     </a>
-                </div>
-            </div>
-        </header>
-
-        <div class="container">
-            <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
-                    <div class="kpi-box">
-                        <div class="kpi-icon"><i class="fa-solid fa-layer-group"></i></div>
-                        <div class="kpi-data">
-                            <h3>{{ stats.total }}</h3>
-                            <p>Total Cards</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="kpi-box">
-                        <div class="kpi-icon" style="color: #4cc9f0; background: #e0f7fa;"><i class="fa-solid fa-inbox"></i></div>
-                        <div class="kpi-data">
-                            <h3>{{ stats.receive }}</h3>
-                            <p>Received</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="kpi-box">
-                        <div class="kpi-icon" style="color: #4895ef; background: #e3f2fd;"><i class="fa-solid fa-paper-plane"></i></div>
-                        <div class="kpi-data">
-                            <h3>{{ stats.sent }}</h3>
-                            <p>Sent Out</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="kpi-box">
-                        <div class="kpi-icon" style="color: #f72585; background: #fce4ec;"><i class="fa-solid fa-plane-departure"></i></div>
-                        <div class="kpi-data">
-                            <h3>{{ stats.avgDuration }}<small style="font-size:1rem"> 天</small></h3>
-                            <p>Avg Duration</p>
-                        </div>
-                    </div>
+                    <small class="text-muted fw-normal">Matching {{ totalFilteredCount }} items</small>
                 </div>
             </div>
 
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="stat-card">
-                        <div class="card-header-custom">
-                            <h5 class="card-title"><i class="fa-solid fa-arrow-trend-up text-primary"></i> 收发趋势 Timeline</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="chart-trend" style="width: 100%; height: 350px;"></div>
-                        </div>
-                    </div>
-                </div>
+            <div v-if="loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">正在从云端同步数据...</p>
             </div>
 
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="row g-4">
-                        <div class="col-12">
-                            <div class="stat-card">
-                                <div class="card-header-custom">
-                                    <h5 class="card-title"><i class="fa-solid fa-map-location-dot text-warning"></i> 热门地区 Top 10</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="chart-geo" style="width: 100%; height: 350px;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="stat-card">
-                                <div class="card-header-custom">
-                                    <h5 class="card-title"><i class="fa-regular fa-clock text-info"></i> 漂流时长分布</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="chart-duration" style="width: 100%; height: 300px;"></div>
+            <div v-else class="row g-2 g-md-4">
+                <div class="col-6 col-md-6 col-xl-4" v-for="card in displayCards" :key="card.id">
+                    <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none text-reset">
+                        <div class="postcard-item shadow-sm">
+                            <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
+                            <img :src="card.imgFront + '?t=' + new Date().getTime()" class="postcard-img" loading="lazy">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
+                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                    <span>
+                                        <i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}
+                                        <span v-if="card.receiveDate && card.sendDate" class="text-primary fw-bold ms-1" style="font-size: 0.7rem;">
+                                            (✈️ {{ Math.floor((new Date(card.receiveDate) - new Date(card.sendDate))/86400000) }}天)
+                                        </span>
+                                    </span>
+                                    <span class="badge bg-light text-dark font-monospace" style="font-size: 0.6rem;">{{ card.id }}</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="stat-card">
-                                <div class="card-header-custom">
-                                    <h5 class="card-title"><i class="fa-solid fa-ticket text-success"></i> 平台占比</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="chart-platform" style="width: 100%; height: 300px;"></div>
-                                </div>
-                            </div>
-                        </div>
+                    </a>
+                </div> 
+            </div>
+
+            <div v-if="!loading && displayCount < totalFilteredCount" class="text-center mt-5 mb-5">
+                <button class="btn btn-load-more shadow-sm" @click="displayCount += 12">加载更多精彩</button>
+            </div>
+        </div>
+
+        <div class="sidebar-right">
+            <div class="filter-card shadow-sm">
+                <div class="filter-title"><i class="fa-solid fa-filter me-2 text-primary"></i>筛选与排序</div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">编号搜索</label>
+                        <input v-model="filterId" type="text" class="form-control" placeholder="输入 ID...">
                     </div>
-                </div>
+                    <div class="col-12">
+                        <label class="form-label">关键词 / 标签</label>
+                        <input v-model="filterTag" type="text" class="form-control" placeholder="搜索内容、地点...">
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label">国家 / 地区</label>
+                        <select v-model="filterCountry" class="form-select" @change="handleCountryChange">
+                            <option value="">🌏 全部国家</option>
+                            <option v-for="c in countries" :value="c">{{c}}</option>
+                        </select>
+                    </div>
 
-                <div class="col-lg-4">
-                    <div class="row g-4">
-                        <div class="col-12">
-                            <div class="stat-card">
-                                <div class="card-header-custom">
-                                    <h5 class="card-title"><i class="fa-solid fa-scale-balanced text-secondary"></i> 收支平衡</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="chart-balance" style="width: 100%; height: 250px;"></div>
-                                </div>
-                            </div>
+                    <template v-if="filterCountry === '中国'">
+                        <div class="col-6">
+                            <label class="form-label">省份</label>
+                            <select v-model="filterProvince" class="form-select" @change="filterCity=''">
+                                <option value="">全部</option>
+                                <option v-for="p in provinces" :value="p">{{p}}</option>
+                            </select>
                         </div>
+                        <div class="col-6">
+                            <label class="form-label">城市</label>
+                            <select v-model="filterCity" class="form-select" :disabled="!filterProvince">
+                                <option value="">全部</option>
+                                <option v-for="c in availableCities" :value="c">{{c}}</option>
+                            </select>
+                        </div>
+                    </template>
 
-                        <div class="col-12">
-                            <div class="stat-card h-100">
-                                <div class="card-header-custom border-bottom pb-3">
-                                    <h5 class="card-title">🏆 趣味之最 Fun Facts</h5>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="fun-fact-item">
-                                        <div class="fun-label"><span>🐢 最漫长的旅程</span> <i class="fa-solid fa-route text-muted"></i></div>
-                                        <div class="fun-value" v-if="funFacts.longest">{{ funFacts.longest.days }} 天</div>
-                                        <div class="fun-sub" v-if="funFacts.longest">
-                                            {{ funFacts.longest.card.region }} | {{ funFacts.longest.card.person }}
-                                            <a :href="'detail.html?id='+funFacts.longest.card.id" target="_blank" class="ms-1"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="fun-fact-item">
-                                        <div class="fun-label"><span>🚀 最速传说</span> <i class="fa-solid fa-bolt text-muted"></i></div>
-                                        <div class="fun-value" v-if="funFacts.shortest">{{ funFacts.shortest.days }} 天</div>
-                                        <div class="fun-sub" v-if="funFacts.shortest">
-                                            {{ funFacts.shortest.card.region }} | {{ funFacts.shortest.card.person }}
-                                            <a :href="'detail.html?id='+funFacts.shortest.card.id" target="_blank" class="ms-1"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="fun-fact-item">
-                                        <div class="fun-label"><span>🤝 最佳片友 (互动最多)</span> <i class="fa-solid fa-user-group text-muted"></i></div>
-                                        <div class="fun-value" v-if="funFacts.topFriend">{{ funFacts.topFriend.name }}</div>
-                                        <div class="fun-sub" v-if="funFacts.topFriend">共交换 {{ funFacts.topFriend.count }} 张明信片</div>
-                                    </div>
-                                    <div class="fun-fact-item">
-                                        <div class="fun-label"><span>📅 最忙碌的一天</span> <i class="fa-regular fa-calendar-check text-muted"></i></div>
-                                        <div class="fun-value" v-if="funFacts.busyDay">{{ funFacts.busyDay.date }}</div>
-                                        <div class="fun-sub" v-if="funFacts.busyDay">处理了 {{ funFacts.busyDay.count }} 张</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-6">
+                        <label class="form-label">来源平台</label>
+                        <select v-model="filterPlatform" class="form-select">
+                            <option value="">全部</option>
+                            <option v-for="p in platforms" :value="p">{{p}}</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">收寄状态</label>
+                        <select v-model="filterType" class="form-select">
+                            <option value="">全部</option>
+                            <option value="收到">📥 收到</option>
+                            <option value="寄出">📤 寄出</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">结果排序</label>
+                        <select v-model="sortBy" class="form-select">
+                            <optgroup label="时间与编号">
+                                <option value="date_desc">📅 日期 (近优先)</option>
+                                <option value="date_asc">📅 日期 (远优先)</option>
+                                <option value="id_desc">🔢 编号 (新→旧)</option>
+                                <option value="id_asc">🔢 编号 (旧→新)</option>
+                            </optgroup>
+                            <optgroup label="时光旅程">
+                                <option value="duration_desc">⏳ 漂流最久</option>
+                                <option value="duration_asc">⚡ 漂流最快</option>
+                            </optgroup>
+                            <optgroup label="地理分布">
+                                <option value="area">📍 按国家/地区</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mt-4 pt-3 border-top">
+                        <button class="btn btn-reset-large" @click="resetAll">
+                            <i class="fa-solid fa-arrows-rotate"></i> 重置所有筛选
+                        </button>
                     </div>
                 </div>
             </div>
@@ -354,217 +303,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+<script src="cityData.js"></script>
+<script src="app.js"></script>
 
 <script>
-    // ⚠️ Supabase 配置
-    const supabaseUrl = 'https://ulhisqjzcruraoqvoagc.supabase.co';
-    const supabaseKey = 'sb_publishable_lneCbBRiTL4tAKv32Nedcw_qSF3IBrq';
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-    new Vue({
-        el: '#app',
-        data: {
-            postcards: [], 
-            loading: true,
-            charts: {}
-        },
-        computed: {
-            stats() {
-                const total = this.postcards.length;
-                const receive = this.postcards.filter(c => c.type === '收到').length;
-                const sent = total - receive;
-                let totalDays = 0, count = 0;
-                this.postcards.forEach(c => {
-                    const days = this.getDuration(c);
-                    if (days !== null) { totalDays += days; count++; }
-                });
-                return { total, receive, sent, avgDuration: count ? Math.round(totalDays / count) : 0 };
-            },
-            funFacts() {
-                if (!this.postcards.length) return {};
-                let validCards = this.postcards.map(c => ({...c, _days: this.getDuration(c)})).filter(c => c._days !== null);
-                validCards.sort((a,b) => b._days - a._days);
-                
-                const longest = validCards.length ? { days: validCards[0]._days, card: validCards[0] } : null;
-                const shortest = validCards.length ? { days: validCards[validCards.length-1]._days, card: validCards[validCards.length-1] } : null;
-
-                const friends = {};
-                this.postcards.forEach(c => { if(c.person) friends[c.person] = (friends[c.person] || 0) + 1; });
-                const topFriendName = Object.keys(friends).sort((a,b) => friends[b] - friends[a])[0];
-                const topFriend = topFriendName ? { name: topFriendName, count: friends[topFriendName] } : null;
-
-                const dates = {};
-                this.postcards.forEach(c => { const d = c.receiveDate || c.sendDate; if(d) dates[d] = (dates[d] || 0) + 1; });
-                const busyDate = Object.keys(dates).sort((a,b) => dates[b] - dates[a])[0];
-                const busyDay = busyDate ? { date: busyDate, count: dates[busyDate] } : null;
-
-                return { longest, shortest, topFriend, busyDay };
-            }
-        },
-        mounted() {
-            this.fetchData();
-        },
-        methods: {
-            async fetchData() {
-                try {
-                    let { data, error } = await supabaseClient
-                        .from('postcard') 
-                        .select('*');
-
-                    if (error) throw error;
-
-                    this.postcards = data.map(item => {
-                        let tags = item.tags;
-                        if (typeof tags === 'string') {
-                            tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
-                        } else if (!tags) tags = [];
-
-                        return {
-                            ...item,
-                            id: item.id,
-                            type: item.type,
-                            country: item.country,
-                            region: item.region,
-                            note: item.note,
-                            tags: tags,
-                            imgFront: item.imgFront || item.imgfront || item.image_path, 
-                            sendDate: item.sendDate || item.senddate || item.send_date,
-                            receiveDate: item.receiveDate || item.receivedate || item.receive_date,
-                            person: item.person,
-                            platform: item.platform
-                        };
-                    });
-
-                    // 延迟一点点，让用户欣赏一下你的新飞机动画 :)
-                    setTimeout(() => {
-                        this.loading = false;
-                        this.$nextTick(() => {
-                            this.initCharts();
-                            window.addEventListener('resize', this.resizeCharts);
-                        });
-                    }, 1500); // 1.5秒动画展示时间
-
-                } catch (e) {
-                    console.error('Data Load Error:', e);
-                    this.loading = false;
-                    alert("加载出错，请检查网络或配置");
-                }
-            },
-
-            // --- 图表逻辑保持不变 ---
-            initCharts() {
-                if(document.getElementById('chart-trend')) this.initTrendChart();
-                if(document.getElementById('chart-geo')) this.initGeoChart();
-                if(document.getElementById('chart-platform')) this.initPlatformChart();
-                if(document.getElementById('chart-balance')) this.initBalanceChart();
-                if(document.getElementById('chart-duration')) this.initDurationChart();
-            },
-            getDuration(card) {
-                if (!card.receiveDate || !card.sendDate) return null;
-                const start = new Date(card.sendDate);
-                const end = new Date(card.receiveDate);
-                const diff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-                return diff >= 0 ? diff : 0;
-            },
-            extractRegion(c) {
-                if (c.country && c.country !== '中国') return c.country;
-                if (!c.region) return '未知';
-                let name = c.region.substring(0, 2);
-                if (['内蒙', '黑龙'].includes(name)) name = c.region.substring(0, 3);
-                return name;
-            },
-            resizeCharts() { Object.values(this.charts).forEach(c => c && c.resize()); },
-            
-            initTrendChart() {
-                const chart = echarts.init(document.getElementById('chart-trend'));
-                this.charts.trend = chart;
-                const monthMap = {};
-                this.postcards.forEach(c => {
-                    const d = c.receiveDate || c.sendDate;
-                    if(!d) return;
-                    const m = d.substring(0, 7);
-                    if(!monthMap[m]) monthMap[m] = { send: 0, receive: 0 };
-                    c.type === '收到' ? monthMap[m].receive++ : monthMap[m].send++;
-                });
-                const months = Object.keys(monthMap).sort();
-                chart.setOption({
-                    tooltip: { trigger: 'axis' },
-                    legend: { bottom: 0 },
-                    grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: months },
-                    yAxis: { type: 'value', minInterval: 1 },
-                    series: [
-                        { name: '收到', type: 'line', smooth: true, data: months.map(m => monthMap[m].receive), itemStyle: { color: '#4cc9f0' }, areaStyle: { opacity: 0.1 } },
-                        { name: '寄出', type: 'line', smooth: true, data: months.map(m => monthMap[m].send), itemStyle: { color: '#4361ee' }, areaStyle: { opacity: 0.1 } }
-                    ]
-                });
-            },
-            initGeoChart() {
-                const chart = echarts.init(document.getElementById('chart-geo'));
-                this.charts.geo = chart;
-                const counts = {};
-                this.postcards.forEach(c => {
-                    const key = this.extractRegion(c);
-                    counts[key] = (counts[key] || 0) + 1;
-                });
-                const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
-                chart.setOption({
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-                    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                    xAxis: { type: 'value', minInterval: 1 },
-                    yAxis: { type: 'category', data: sorted.map(i => i[0]).reverse() },
-                    series: [{
-                        type: 'bar', data: sorted.map(i => i[1]).reverse(),
-                        itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#4361ee' }, { offset: 1, color: '#f72585' }]), borderRadius: [0, 10, 10, 0] },
-                        label: { show: true, position: 'right' }
-                    }]
-                });
-            },
-            initPlatformChart() {
-                const chart = echarts.init(document.getElementById('chart-platform'));
-                this.charts.platform = chart;
-                const counts = {};
-                this.postcards.forEach(c => {
-                    const p = c.platform || '其他';
-                    counts[p] = (counts[p] || 0) + 1;
-                });
-                const data = Object.keys(counts).map(k => ({ name: k, value: counts[k] }));
-                chart.setOption({
-                    tooltip: { trigger: 'item' },
-                    legend: { bottom: 0 },
-                    series: [{ type: 'pie', radius: ['40%', '70%'], avoidLabelOverlap: false, itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 }, data: data, color: ['#4361ee', '#3a0ca3', '#7209b7', '#f72585', '#4cc9f0'] }]
-                });
-            },
-            initBalanceChart() {
-                const chart = echarts.init(document.getElementById('chart-balance'));
-                this.charts.balance = chart;
-                chart.setOption({
-                    tooltip: { trigger: 'item' },
-                    series: [{ type: 'pie', radius: '70%', center: ['50%', '50%'], data: [{ value: this.stats.receive, name: '收到', itemStyle: { color: '#4cc9f0' } }, { value: this.stats.sent, name: '寄出', itemStyle: { color: '#4361ee' } }], label: { formatter: '{b}: {c} ({d}%)' } }]
-                });
-            },
-            initDurationChart() {
-                const chart = echarts.init(document.getElementById('chart-duration'));
-                this.charts.duration = chart;
-                const bins = { '0-3天': 0, '4-7天': 0, '8-14天': 0, '15-30天': 0, '30天+': 0 };
-                this.postcards.forEach(c => {
-                    const days = this.getDuration(c);
-                    if(days === null) return;
-                    if (days <= 3) bins['0-3天']++;
-                    else if (days <= 7) bins['4-7天']++;
-                    else if (days <= 14) bins['8-14天']++;
-                    else if (days <= 30) bins['15-30天']++;
-                    else bins['30天+']++;
-                });
-                chart.setOption({
-                    tooltip: { trigger: 'axis' },
-                    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                    xAxis: { type: 'category', data: Object.keys(bins) },
-                    yAxis: { type: 'value', minInterval: 1 },
-                    series: [{ type: 'bar', data: Object.values(bins), itemStyle: { color: '#7209b7', borderRadius: [5, 5, 0, 0] }, label: { show: true, position: 'top' } }]
-                });
-            }
+    window.addEventListener('resize', function() {
+        const mapDom = document.getElementById('map-container');
+        if (mapDom) {
+            const myChart = echarts.getInstanceByDom(mapDom);
+            if (myChart) { myChart.resize(); }
         }
     });
 </script>
