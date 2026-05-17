@@ -196,15 +196,22 @@
                             <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
                             <img :src="card.imgFront + '?t=' + new Date().getTime()" class="postcard-img" loading="lazy">
                             <div class="card-body">
-                                <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
-                                <div class="d-flex justify-content-between align-items-center small text-muted">
-                                    <span>
-                                        <i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}
-                                        <span v-if="card.receiveDate && card.sendDate" class="text-primary fw-bold ms-1" style="font-size: 0.7rem;">
-                                            (✈️ {{ Math.floor((new Date(card.receiveDate) - new Date(card.sendDate))/86400000) }}天)
-                                        </span>
-                                    </span>
-                                    <span class="badge bg-light text-dark font-monospace" style="font-size: 0.6rem;">{{ card.id }}</span>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
+                                        <div class="small text-muted">
+                                            <i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}
+                                            <span v-if="card.receiveDate && card.sendDate" class="text-primary fw-bold ms-1" style="font-size: 0.7rem;">
+                                                (✈️ {{ Math.floor((new Date(card.receiveDate) - new Date(card.sendDate))/86400000) }}天)
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end flex-shrink-0 ms-2">
+                                        <div v-if="card.person" class="small fw-bold text-truncate" style="max-width: 100px; color: #4a4e69;">
+                                            <i class="fa-solid fa-at me-1" style="font-size: 0.7rem;"></i>{{ card.person }}
+                                        </div>
+                                        <span class="badge bg-light text-dark font-monospace mt-1" style="font-size: 0.6rem;">{{ card.id }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
