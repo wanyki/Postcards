@@ -26,7 +26,7 @@
 
 | **平台名称**       | **链接**                                          | **特点**               |
 | ------------------ | ------------------------------------------------- | ---------------------- |
-| **Post-Hi**        | [post-hi.com](https://www.post-hi.com/home)       | 国内活跃的互寄社区     |
+| **Post-Hi**        | [post-hi.com](https://www.post-hi.com/)           | 国内活跃的互寄社区     |
 | **Manyour**        | [manyour.cn](https://manyour.cn/)                 | 界面清新，体验优良     |
 | **ICardYou (ICY)** | [icardyou.icu](https://icardyou.icu/index)        | 资深玩家云集的交流地   |
 | **Postcrossing**   | [postcrossing.com](https://www.postcrossing.com/) | 全球最大的随机互寄平台 |
