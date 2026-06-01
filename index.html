@@ -192,7 +192,7 @@
             <div v-else class="row g-2 g-md-4">
                 <div class="col-6 col-md-6 col-xl-4" v-for="card in displayCards" :key="card.id">
                     <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none text-reset">
-                        <div class="postcard-item shadow-sm">
+                        <div class="postcard-item shadow-sm" @mouseenter="highlightMapRegion(card)" @mouseleave="downplayMapRegion">
                             <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
                             <img :src="card.imgFront + '?t=' + new Date().getTime()" class="postcard-img" loading="lazy">
                             <div class="card-body">

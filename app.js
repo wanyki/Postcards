@@ -69,7 +69,7 @@ if (document.getElementById('app')) {
     "波兰": "Poland",
     "罗马尼亚": "Romania",
     "匈牙利": "Hungary",
-    "捷克": "Czech Republic",
+    "捷克": "Czech Rep.",
     "奥地利": "Austria",
     "丹麦": "Denmark",
     "芬兰": "Finland",
@@ -332,6 +332,32 @@ if (document.getElementById('app')) {
                 });
                 
                 this.updateMap();
+            },
+            getRegionKey(card) {
+                if (this.mapType === 'china') {
+                    if (!card.country || card.country === '中国') {
+                        if (card.region) {
+                            let key = card.region.substring(0, 2);
+                            if (key === '内蒙') return '内蒙古';
+                            if (key === '黑龙') return '黑龙江';
+                            return key;
+                        }
+                    }
+                } else {
+                    let country = card.country || '中国';
+                    return this.countryMap[country] || country;
+                }
+                return null;
+            },
+            highlightMapRegion(card) {
+                if (!this.myChart) return;
+                const name = this.getRegionKey(card);
+                if (!name) return;
+                this.myChart.dispatchAction({ type: 'highlight', seriesIndex: 0, name: name });
+            },
+            downplayMapRegion() {
+                if (!this.myChart) return;
+                this.myChart.dispatchAction({ type: 'downplay', seriesIndex: 0 });
             },
             updateMap() {
                 if (!this.myChart) return;
