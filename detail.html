@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>明信片档案详情📮</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --bg: #f8f9fc;
+            --text-main: #2d3436;
+        }
+
+        body { 
+            background-color: var(--bg); 
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        .glass-header {
+            position: sticky;
+            top: 15px;
+            z-index: 1000;
+            margin: 0 auto;
+            width: 95%;
+            /* 增大页眉宽度以匹配主体 */
+            max-width: 1400px;
+        }
+
+        .header-content {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 100px;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.1rem;
+        }
+
+        .btn-back {
+            background: #fff;
+            border: 1px solid #eee;
+            color: #666;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+
+        /* --- 主容器布局 --- */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 30px 0 60px;
+        }
+
+        /* 统一响应式容器宽度 */
+        .container-wide {
+            width: 95%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .detail-card { 
+            background: white; border-radius: 30px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.04); 
+            overflow: hidden; border: none;
+            width: 100%;
+        }
+
+        .image-side {
+            background: #f1f3f5;
+            display: flex; align-items: center; justify-content: center;
+            padding: 15px; /* 减小默认内边距 */
+            min-height: 350px;
+        }
+
+        .img-wrapper {
+            position: relative;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+            border-radius: 16px; 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: zoom-in;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .img-wrapper img { 
+            width: 100%; 
+            height: auto; 
+            max-width: 100%;
+            max-height: 85vh; /* 允许在大屏下显示得更高 */
+            border-radius: 16px; 
+            display: block;
+            object-fit: contain;
+        }
+
+        .img-wrapper:hover { transform: scale(1.02); }
+
+        .info-side { padding: 30px 20px; }
+        
+        /* 针对大屏幕优化：扩展宽度和内边距 */
+        @media (min-width: 992px) {
+            .info-side { padding: 50px 40px; }
+            .image-side { padding: 40px; min-height: 600px; }
+        }
+
+        .badge-id { 
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: #f1f3f5; color: #4b5e71;
+            padding: 6px 12px; border-radius: 8px;
+            font-size: 0.85rem; font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .user-region-title {
+            font-size: 2rem; font-weight: 800;
+            color: #1a1a1a; margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .drift-box {
+            background: #f8faff; border: 1px solid #eef2ff;
+            border-radius: 24px; padding: 20px; margin-bottom: 25px;
+        }
+
+        .drift-line { height: 1px; background: #dfe7ef; position: relative; margin: 18px 0; }
+        .drift-line::after {
+            content: "✈️"; position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -55%); background: #f8faff; padding: 0 10px; font-size: 1.1rem;
+        }
+
+        .note-area {
+            background: #fffdf5; border-left: 5px solid #ffeaa7;
+            padding: 20px; color: #4a5568; line-height: 1.8; border-radius: 0 15px 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .tag-pill {
+            background: #edf2ff; color: var(--primary);
+            padding: 5px 14px; border-radius: 50px; margin: 0 8px 8px 0;
+            font-size: 0.8rem; font-weight: 600; display: inline-block;
+        }
+
+        #imgModal { 
+            background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #imgModal.show { opacity: 1; }
+        #imgModal img { 
+            max-width: 95%; 
+            max-height: 90vh; 
+            border-radius: 15px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #imgModal.show img { transform: scale(1); }
+    </style>
+</head>
+<body>
+
+<header class="glass-header">
+    <div class="header-content">
+        <div class="header-logo">
+            <span class="me-2">📮</span>
+            <span class="d-none d-sm-inline">明信片档案详情</span>
+            <span class="d-inline d-sm-none">档案详情</span>
+        </div>
+        <a href="index.html" class="btn-back">
+            <i class="bi bi-arrow-left me-1"></i> 返回画廊
+        </a>
+    </div>
+</header>
+
+<main class="main-container">
+    <div class="container-wide">
+        <div id="detail-root">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-3">正在从云端读取档案...</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="imgModal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:2000;" onclick="closeImgModal()">
+    <img id="imgModalImg" src="">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // Supabase 配置
+    const supabaseUrl = 'https://twrdvfeswnywkgqjbjdz.supabase.co';
+    const supabaseKey = 'sb_publishable_NQpsX76wlKtglbYskxwhiQ_T024LL_X';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    function getQueryId() {
+        return new URLSearchParams(window.location.search).get('id');
+    }
+
+    function getDriftDays(s, r) {
+        if (!s || !r) return null;
+        const diff = Math.floor((new Date(r) - new Date(s)) / (1000 * 60 * 60 * 24));
+        return diff >= 0 ? diff : 0;
+    }
+
+    function openImgModal(imgSrc) {
+        const modal = document.getElementById('imgModal');
+        const modalImg = document.getElementById('imgModalImg');
+        modalImg.src = imgSrc;
+        modal.style.display = 'flex';
+        requestAnimationFrame(() => modal.classList.add('show'));
+    }
+
+    function closeImgModal() {
+        const modal = document.getElementById('imgModal');
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    // 核心渲染逻辑 (异步)
+    async function render() {
+        const id = getQueryId();
+        const root = document.getElementById('detail-root');
+
+        if (!id) {
+            root.innerHTML = `<div class="text-center py-5"><h5>无效的档案编号</h5><a href="archive.html" class="btn btn-primary mt-3">返回画廊</a></div>`;
+            return;
+        }
+
+        try {
+            // 从 Supabase 查找单条记录
+            let { data, error } = await supabaseClient
+                .from('postcard') // 这里的表名一定要和你的数据库一致（之前确认是单数 postcard）
+                .select('*')
+                .eq('id', id)
+                .single(); // 只取一条
+
+            if (error) throw error;
+            if (!data) throw new Error("Card not found");
+
+            // 数据清洗 & 字段映射
+            let tags = data.tags;
+            if (typeof tags === 'string') {
+                tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
+            } else if (!tags) tags = [];
+
+            const card = {
+                ...data,
+                id: data.id,
+                type: data.type,
+                country: data.country,
+                region: data.region,
+                note: data.note,
+                tags: tags,
+                // 图片路径映射
+                imgFront: data.imgFront || data.imgfront || data.image_path,
+                sendDate: data.sendDate || data.senddate || data.send_date,
+                receiveDate: data.receiveDate || data.receivedate || data.receive_date,
+                person: data.person,
+                platform: data.platform
+            };
+
+            const drift = getDriftDays(card.sendDate, card.receiveDate);
+
+            // 渲染 HTML
+            root.innerHTML = `
+                <div class="detail-card">
+                    <div class="row g-0">
+                        <div class="col-lg-8 image-side">
+                            <div class="img-wrapper" onclick="openImgModal(this.querySelector('img').src)">
+                                <img src="${card.imgFront}?t=${new Date().getTime()}" alt="Postcard Side">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 info-side">
+                            <div class="badge-id">ID: ${card.id}</div>
+                            
+                            <h2 class="user-region-title">
+                                ${card.person || '佚名'} - ${card.region || card.country || '海外'}
+                            </h2>
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
+                                <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">📍 ${card.country || '中国'}</span>
+                                <span class="badge ${card.type === '收到' ? 'bg-success' : 'bg-primary'} rounded-pill px-3 py-2">${card.type}</span>
+                                <span class="ms-1 text-muted small fw-bold" style="letter-spacing:0.5px">
+                                    <i class="bi bi-globe2 me-1"></i>${card.platform || '个人交换'}
+                                </span>
+                            </div>
+
+                            <div class="drift-box">
+                                <div class="row text-center g-0">
+                                    <div class="col-5">
+                                        <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">寄出 Sent</label>
+                                        <div class="fw-bold">${card.sendDate || '—'}</div>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-arrow-right-short text-muted fs-4"></i>
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="small text-muted d-block mb-1" style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">收到 Received</label>
+                                        <div class="fw-bold">${card.receiveDate || '—'}</div>
+                                    </div>
+                                </div>
+                                <div class="drift-line"></div>
+                                <div class="text-center">
+                                    ${drift !== null ? 
+                                        `<span class="fw-bold text-primary small"><i class="bi bi-clock-fill me-1"></i> 漂流旅程：${drift} 天</span>` : 
+                                        `<span class="text-muted small">漂流时间不详</span>`
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small text-muted fw-bold mb-2 d-block" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">档案备注 Note</label>
+                                <div class="note-area shadow-sm">
+                                    ${card.note || '这封信静静地躺在时光里，没有留下额外的只言片语。'}
+                                </div>
+                            </div>
+
+                            <div class="tag-container">
+                                ${tags.map(t => `<span class="tag-pill"># ${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        } catch (e) {
+            console.error(e);
+            root.innerHTML = `<div class="text-center py-5">
+                <h5>💔 档案读取失败</h5>
+                <p class="text-muted small">${e.message}</p>
+                <a href="archive.html" class="btn btn-primary mt-3">返回画廊</a>
+            </div>`;
+        }
+    }
+
+    window.onload = render;
+</script>
+</body>
+</html>

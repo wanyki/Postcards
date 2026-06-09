@@ -1,0 +1,12 @@
+node_modules
+.env
+.env.local
+.env.*
+.vercel
+.vscode
+.idea
+.vscode/
+admin.html
+bulk.html
+migrate.html
+data.js
