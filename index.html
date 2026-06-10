@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的明信片足迹 📮</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #2ec4b6;
+            --info: #3a86ff;
+            --warning: #ff9f1c;
+            --bg: #f0f2f5;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #2b2d42;
+            padding-bottom: 50px;
+        }
+
+        /* 顶部统计卡片 */
+        .stat-container { 
+            display: flex; 
+            gap: 15px; 
+            margin: 20px 0 25px; 
+        }
+        
+        @media (max-width: 768px) {
+            .stat-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .stat-icon {
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .stat-info .label { font-size: 0.7rem; color: #8d99ae; font-weight: 600; text-transform: uppercase; }
+        .stat-info .value { font-size: 1.3rem; font-weight: 800; display: block; }
+
+        /* 主体布局控制 */
+        .main-grid { display: flex; gap: 24px; align-items: flex-start; }
+        .content-left { flex: 1; min-width: 0; } 
+        .sidebar-right { width: 340px; flex-shrink: 0; position: sticky; top: 20px; }
+
+        @media (max-width: 992px) {
+            .main-grid { flex-direction: column; }
+            .sidebar-right { 
+                width: 100%; 
+                position: static; 
+                order: -1; 
+                margin-bottom: 20px;
+            }
+            #map-container { height: 350px !important; }
+        }
+
+        /* 地图卡片 */
+        .map-card {
+            background: white; border-radius: 24px; padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+        #map-container { width: 100%; height: 500px; border-radius: 16px; }
+
+        /* 筛选器卡片 */
+        .filter-card {
+            background: #fff; border-radius: 24px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02);
+        }
+        .filter-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 20px; color: #1a1c2c; }
+        .form-label { font-weight: 700; font-size: 0.8rem; color: #4a4e69; margin-bottom: 6px; }
+        .form-control, .form-select {
+            border-radius: 12px; border: 1px solid #edf2f7; background: #f8fafc;
+            padding: 10px 15px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .form-control:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+
+        /* 画廊项目 */
+        .postcard-item {
+            background: white; border-radius: 22px; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #f1f5f9; position: relative; height: 100%;
+        }
+        .postcard-item:hover { transform: translateY(-8px); box-shadow: 0 20px 30px rgba(0,0,0,0.08); }
+        .postcard-img { width: 100%; height: 180px; object-fit: cover; }
+        
+        @media (min-width: 768px) {
+            .postcard-img { height: 200px; }
+        }
+
+        .card-body { padding: 15px; }
+        .card-tag {
+            position: absolute; top: 12px; right: 12px; padding: 5px 12px;
+            border-radius: 12px; font-size: 0.65rem; font-weight: 800; color: white;
+            z-index: 2; text-transform: uppercase;
+        }
+
+        /* 按钮 */
+        .btn-reset-large {
+            background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;
+            padding: 12px; border-radius: 14px; font-weight: 700; width: 100%;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-reset-large:hover { background: #fee2e2; color: #ef476f; border-color: #fecaca; }
+        
+        .btn-load-more {
+            background: white; color: var(--primary); border: 2px solid var(--primary);
+            padding: 12px 40px; border-radius: 15px; font-weight: 700; transition: all 0.2s;
+        }
+        .btn-load-more:hover { background: var(--primary); color: white; }
+
+        @media (max-width: 576px) {
+            .row.g-2 { --bs-gutter-x: 10px; --bs-gutter-y: 10px; }
+            .postcard-img { height: 140px; }
+            .card-body h6 { font-size: 0.85rem; }
+        }
+
+        [v-cloak] { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="container-fluid px-2 px-md-4 px-lg-5" v-cloak>
+    <div class="stat-container">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(67, 97, 238, 0.1); color: var(--primary);"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stat-info"><span class="label">Total</span><span class="value">{{ postcards.length }}</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(46, 196, 182, 0.1); color: var(--success);"><i class="fa-solid fa-inbox"></i></div>
+            <div class="stat-info"><span class="label">Received</span><span class="value">{{ stats.receiveCount }}</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(58, 134, 255, 0.1); color: var(--info);"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="stat-info"><span class="label">Sent</span><span class="value">{{ stats.sendCount }}</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(255, 159, 28, 0.1); color: var(--warning);"><i class="fa-solid fa-earth-asia"></i></div>
+            <div class="stat-info"><span class="label">Regions</span><span class="value">{{ stats.countryCount }}</span></div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="content-left">
+            <div class="map-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0"><i class="fa-solid fa-map-marked-alt me-2 text-primary"></i>足迹热力分布</h5>
+                    <div class="btn-group btn-group-sm rounded-pill overflow-hidden border">
+                        <button class="btn px-3 px-md-4" :class="mapType === 'china' ? 'btn-primary' : 'btn-light'" @click="toggleMap('china')">国内</button>
+                        <button class="btn px-3 px-md-4" :class="mapType === 'world' ? 'btn-primary' : 'btn-light'" @click="toggleMap('world')">全球</button>
+                    </div>
+                </div>
+                <div id="map-container"></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+                <h4 class="fw-bold m-0">🖼️ 记忆画廊</h4>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="timeline.html" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3">
+                        <i class="fa-solid fa-calendar-days me-1"></i>日期筛选
+                    </a>
+                    <a href="dashboard.html" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3">
+                        <i class="fa-solid fa-chart-pie me-1"></i>数据中心
+                    </a>
+                    <small class="text-muted fw-normal">Matching {{ totalFilteredCount }} items</small>
+                </div>
+            </div>
+
+            <div v-if="loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">正在从云端同步数据...</p>
+            </div>
+
+            <div v-else class="row g-2 g-md-4">
+                <div class="col-6 col-md-6 col-xl-4" v-for="card in displayCards" :key="card.id">
+                    <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none text-reset">
+                        <div class="postcard-item shadow-sm" @mouseenter="highlightMapRegion(card)" @mouseleave="downplayMapRegion">
+                            <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
+                            <img :src="card.imgFront + '?t=' + new Date().getTime()" class="postcard-img" loading="lazy">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="fw-bold text-truncate mb-1">{{ card.region || card.country }}</h6>
+                                        <div class="small text-muted">
+                                            <i class="fa-regular fa-calendar me-1"></i>{{ card.receiveDate || card.sendDate || '—' }}
+                                            <span v-if="card.receiveDate && card.sendDate" class="text-primary fw-bold ms-1" style="font-size: 0.7rem;">
+                                                (✈️ {{ Math.floor((new Date(card.receiveDate) - new Date(card.sendDate))/86400000) }}天)
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end flex-shrink-0 ms-2">
+                                        <div v-if="card.person" class="small fw-bold text-truncate" style="max-width: 100px; color: #4a4e69;">
+                                            <i class="fa-solid fa-at me-1" style="font-size: 0.7rem;"></i>{{ card.person }}
+                                        </div>
+                                        <span class="badge bg-light text-dark font-monospace mt-1" style="font-size: 0.6rem;">{{ card.id }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div> 
+            </div>
+
+            <div v-if="!loading && displayCount < totalFilteredCount" class="text-center mt-5 mb-5">
+                <button class="btn btn-load-more shadow-sm" @click="displayCount += 12">加载更多精彩</button>
+            </div>
+        </div>
+
+        <div class="sidebar-right">
+            <div class="filter-card shadow-sm">
+                <div class="filter-title"><i class="fa-solid fa-filter me-2 text-primary"></i>筛选与排序</div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">编号搜索</label>
+                        <input v-model="filterId" type="text" class="form-control" placeholder="输入 ID...">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">关键词 / 标签</label>
+                        <input v-model="filterTag" type="text" class="form-control" placeholder="搜索内容、地点...">
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label">国家 / 地区</label>
+                        <select v-model="filterCountry" class="form-select" @change="handleCountryChange">
+                            <option value="">🌏 全部国家</option>
+                            <option v-for="c in countries" :value="c">{{c}}</option>
+                        </select>
+                    </div>
+
+                    <template v-if="filterCountry === '中国'">
+                        <div class="col-6">
+                            <label class="form-label">省份</label>
+                            <select v-model="filterProvince" class="form-select" @change="filterCity=''">
+                                <option value="">全部</option>
+                                <option v-for="p in provinces" :value="p">{{p}}</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">城市</label>
+                            <select v-model="filterCity" class="form-select" :disabled="!filterProvince">
+                                <option value="">全部</option>
+                                <option v-for="c in availableCities" :value="c">{{c}}</option>
+                            </select>
+                        </div>
+                    </template>
+
+                    <div class="col-6">
+                        <label class="form-label">来源平台</label>
+                        <select v-model="filterPlatform" class="form-select">
+                            <option value="">全部</option>
+                            <option v-for="p in platforms" :value="p">{{p}}</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">收寄状态</label>
+                        <select v-model="filterType" class="form-select">
+                            <option value="">全部</option>
+                            <option value="收到">📥 收到</option>
+                            <option value="寄出">📤 寄出</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">结果排序</label>
+                        <select v-model="sortBy" class="form-select">
+                            <optgroup label="时间与编号">
+                                <option value="date_desc">📅 日期 (近优先)</option>
+                                <option value="date_asc">📅 日期 (远优先)</option>
+                                <option value="id_desc">🔢 编号 (新→旧)</option>
+                                <option value="id_asc">🔢 编号 (旧→新)</option>
+                            </optgroup>
+                            <optgroup label="时光旅程">
+                                <option value="duration_desc">⏳ 漂流最久</option>
+                                <option value="duration_asc">⚡ 漂流最快</option>
+                            </optgroup>
+                            <optgroup label="地理分布">
+                                <option value="area">📍 按国家/地区</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mt-4 pt-3 border-top">
+                        <button class="btn btn-reset-large" @click="resetAll">
+                            <i class="fa-solid fa-arrows-rotate"></i> 重置所有筛选
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+<script src="cityData.js"></script>
+<script src="app.js"></script>
+
+<script>
+    window.addEventListener('resize', function() {
+        const mapDom = document.getElementById('map-container');
+        if (mapDom) {
+            const myChart = echarts.getInstanceByDom(mapDom);
+            if (myChart) { myChart.resize(); }
+        }
+    });
+</script>
+</body>
+</html>

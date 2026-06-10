@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>明信片管理系统</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sidebar-bg: #1e1b4b;
+            --sidebar-hover: #312e81;
+            --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+        }
+
+        * { transition: all 0.2s ease; }
+
+        body {
+            background: #f1f5f9;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        /* 登录页面 */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(99,102,241,0.4);
+        }
+
+        .login-box .form-control {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .login-box .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(99,102,241,0.4);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99,102,241,0.4);
+            color: white;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            padding: 20px 0 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand i {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-light) 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-brand h5 {
+            color: white;
+            font-weight: 700;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .sidebar-menu a.active {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(99,102,241,0.4);
+        }
+
+        .sidebar-menu a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 260px;
+            padding: 32px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h4 {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1.5rem;
+        }
+
+        .page-header .breadcrumb {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* 统计卡片 */
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .stat-card.total::before { background: linear-gradient(90deg, var(--primary), #8b5cf6); }
+        .stat-card.receive::before { background: linear-gradient(90deg, var(--success), #34d399); }
+        .stat-card.send::before { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+        .stat-card.country::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .stat-card.total .stat-icon { background: rgba(99,102,241,0.1); color: var(--primary); }
+        .stat-card.receive .stat-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+        .stat-card.send .stat-icon { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .stat-card.country .stat-icon { background: rgba(236,72,153,0.1); color: #ec4899; }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .card-header-custom h5 {
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .card-body-custom {
+            padding: 24px;
+        }
+
+        /* 表格样式 */
+        .table-modern {
+            margin: 0;
+        }
+
+        .table-modern thead th {
+            background: #f1f5f9;
+            border: none;
+            padding: 14px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-modern tbody td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+
+        .table-modern tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge-modern {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background: rgba(99,102,241,0.1);
+            color: var(--primary);
+            border: none;
+        }
+
+        .btn-edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+            border: none;
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* 表单样式 */
+        .form-label-modern {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-control-modern, .form-select-modern {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control-modern:focus, .form-select-modern:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 32px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(99,102,241,0.4);
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99,102,241,0.4);
+        }
+
+        .btn-secondary-modern {
+            background: #f1f5f9;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px 32px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .btn-secondary-modern:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        /* 批量导入区域 */
+        .import-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            background: #f8fafc;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .import-zone:hover, .import-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.05);
+        }
+
+        .import-zone i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .import-zone.dragover i {
+            color: var(--primary);
+        }
+
+        .import-zone h5 {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .import-zone p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .import-preview {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .import-preview table {
+            font-size: 0.85rem;
+        }
+
+        .import-status {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .import-status.success {
+            background: rgba(16,185,129,0.1);
+            color: #059669;
+            border: 1px solid rgba(16,185,129,0.2);
+        }
+
+        .import-status.error {
+            background: rgba(239,68,68,0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239,68,68,0.2);
+        }
+
+        .import-status.info {
+            background: rgba(99,102,241,0.1);
+            color: var(--primary);
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+
+        /* 搜索框 */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 44px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            padding: 10px 16px 10px 44px;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        /* 加载动画 */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 进度条 */
+        .progress-modern {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+
+        .progress-bar-modern {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                min-height: auto;
+                padding: 16px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+
+            .sidebar-menu li {
+                margin-bottom: 0;
+            }
+
+            .sidebar-menu a {
+                white-space: nowrap;
+                padding: 10px 16px;
+            }
+
+            .sidebar-footer {
+                position: static;
+                margin-top: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginSection" class="login-container">
+        <div class="login-box">
+            <div class="login-icon">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <h4 class="text-center fw-bold mb-1">明信片管理系统</h4>
+            <p class="text-center text-muted mb-4">请登录以继续管理</p>
+            <form onsubmit="return login(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">用户名</label>
+                    <input type="text" class="form-control" id="username" placeholder="请输入用户名" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">密码</label>
+                    <input type="password" class="form-control" id="password" placeholder="请输入密码" required>
+                </div>
+                <div id="loginError" class="alert alert-danger d-none mb-3" style="border-radius:12px;"></div>
+                <button type="submit" class="btn btn-login w-100">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>登录
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 管理后台 -->
+    <div id="adminSection" style="display:none;">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-paper-plane"></i>
+                <h5>管理系统</h5>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="switchPage('dashboard', this)"><i class="fa-solid fa-chart-pie"></i>数据概览</a></li>
+                <li><a href="#" onclick="switchPage('postcards', this)"><i class="fa-solid fa-images"></i>明信片管理</a></li>
+                <li><a href="#" onclick="switchPage('addform', this)"><i class="fa-solid fa-plus-circle"></i>添加明信片</a></li>
+                <li><a href="#" onclick="switchPage('import', this)"><i class="fa-solid fa-file-import"></i>批量导入</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i>退出登录
+                </button>
+            </div>
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <!-- 数据概览页 -->
+            <div id="dashboardPage">
+                <div class="page-header">
+                    <h4><i class="fa-solid fa-chart-pie me-2 text-primary"></i>数据概览</h4>
+                    <div class="breadcrumb">首页 / 数据概览</div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="stat-card total">
+                            <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
+                            <div class="stat-value" id="statTotal">0</div>
+                            <div class="stat-label">总数量</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="stat-card receive">
+                            <div class="stat-icon"><i class="fa-solid fa-inbox"></i></div>
+                            <div class="stat-value" id="statReceive">0</div>
+                            <div class="stat-label">收到</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="stat-card send">
+                            <div class="stat-icon"><i class="fa-solid fa-paper-plane"></i></div>
+                            <div class="stat-value" id="statSend">0</div>
+                            <div class="stat-label">寄出</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="stat-card country">
+                            <div class="stat-icon"><i class="fa-solid fa-earth-asia"></i></div>
+                            <div class="stat-value" id="statCountry">0</div>
+                            <div class="stat-label">国家/地区</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 明信片列表页 -->
+            <div id="postcardsPage" style="display:none;">
+                <div class="page-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4><i class="fa-solid fa-images me-2 text-primary"></i>明信片管理</h4>
+                        <div class="breadcrumb">首页 / 明信片管理</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary-modern btn-sm" onclick="switchPage('addform', null)">
+                            <i class="fa-solid fa-plus me-1"></i>添加明信片
+                        </button>
+                        <button class="btn btn-secondary-modern btn-sm" onclick="switchPage('import', null)">
+                            <i class="fa-solid fa-file-import me-1"></i>批量导入
+                        </button>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h5>明信片列表</h5>
+                        <div class="search-box" style="width: 250px;">
+                            <i class="fa-solid fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="搜索明信片..." oninput="filterPostcards()">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>编号</th>
+                                    <th>类型</th>
+                                    <th>国家/地区</th>
+                                    <th>人物</th>
+                                    <th>日期</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postcardList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加/编辑表单页 -->
+            <div id="addformPage" style="display:none;">
+                <div class="page-header">
+                    <h4><i class="fa-solid fa-plus-circle me-2 text-primary" id="formIcon"></i><span id="formTitle">添加新明信片</span></h4>
+                    <div class="breadcrumb">首页 / <span id="formBreadcrumb">添加明信片</span></div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-body-custom">
+                        <form onsubmit="return savePostcard(event)">
+                            <input type="hidden" id="editId">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">编号 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-modern" id="cardId" required placeholder="输入明信片编号">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">类型 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-modern" id="cardType">
+                                        <option value="收到">📥 收到</option>
+                                        <option value="寄出">📤 寄出</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">国家</label>
+                                    <input type="text" class="form-control form-control-modern" id="cardCountry" value="中国" placeholder="输入国家">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">地区</label>
+                                    <input type="text" class="form-control form-control-modern" id="cardRegion" placeholder="输入地区">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">人物</label>
+                                    <input type="text" class="form-control form-control-modern" id="cardPerson" placeholder="输入人物名称">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">平台</label>
+                                    <input type="text" class="form-control form-control-modern" id="cardPlatform" placeholder="输入来源平台">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">寄出日期</label>
+                                    <input type="date" class="form-control form-control-modern" id="cardSendDate">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">收到日期</label>
+                                    <input type="date" class="form-control form-control-modern" id="cardReceiveDate">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-modern">图片链接</label>
+                                    <input type="text" class="form-control form-control-modern" id="cardImg" placeholder="输入图片URL">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-modern">备注</label>
+                                    <textarea class="form-control form-control-modern" id="cardNote" rows="4" placeholder="输入备注信息"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-modern">标签 <small class="text-muted">（逗号分隔）</small></label>
+                                    <input type="text" class="form-control form-control-modern" id="cardTags" placeholder="风景,建筑,美食">
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="btn btn-primary-modern me-3">
+                                        <i class="fa-solid fa-save me-2"></i>保存
+                                    </button>
+                                    <button type="button" class="btn btn-secondary-modern" onclick="resetForm()">
+                                        <i class="fa-solid fa-rotate-left me-2"></i>重置
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量导入页 -->
+            <div id="importPage" style="display:none;">
+                <div class="page-header">
+                    <h4><i class="fa-solid fa-file-import me-2 text-primary"></i>批量导入</h4>
+                    <div class="breadcrumb">首页 / 批量导入</div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="content-card">
+                            <div class="card-header-custom">
+                                <h5><i class="fa-solid fa-upload me-2"></i>上传文件</h5>
+                            </div>
+                            <div class="card-body-custom">
+                                <div id="importZone" class="import-zone" onclick="document.getElementById('importFile').click()">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <h5>点击或拖拽文件到此处</h5>
+                                    <p>支持 Excel (.xlsx, .xls) 格式文件</p>
+                                    <input type="file" id="importFile" accept=".xlsx,.xls" style="display:none;" onchange="handleFileUpload(event)">
+                                </div>
+
+                                <div id="importStatus" class="import-status d-none mt-3"></div>
+
+                                <div id="importPreview" class="import-preview mt-4 d-none">
+                                    <h6 class="fw-bold mb-3">
+                                        <i class="fa-solid fa-eye me-2"></i>数据预览
+                                        <span id="importCount" class="badge bg-primary ms-2">0 条</span>
+                                    </h6>
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table class="table table-sm table-bordered">
+                                            <thead id="previewHeader"></thead>
+                                            <tbody id="previewBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div id="importActions" class="mt-4 d-none">
+                                    <div class="progress-modern mb-3">
+                                        <div id="importProgress" class="progress-bar-modern" style="width: 0%"></div>
+                                    </div>
+                                    <button class="btn btn-primary-modern" onclick="startImport()">
+                                        <i class="fa-solid fa-file-import me-2"></i>开始导入
+                                    </button>
+                                    <button class="btn btn-secondary-modern ms-2" onclick="cancelImport()">
+                                        <i class="fa-solid fa-times me-2"></i>取消
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="content-card">
+                            <div class="card-header-custom">
+                                <h5><i class="fa-solid fa-circle-info me-2"></i>导入说明</h5>
+                            </div>
+                            <div class="card-body-custom">
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">支持的文件格式：</h6>
+                                    <div class="d-flex gap-2 mt-3">
+                                        <span class="badge bg-success px-3 py-2"><i class="fa-solid fa-file-excel me-1"></i>Excel (.xlsx)</span>
+                                        <span class="badge bg-success px-3 py-2"><i class="fa-solid fa-file-excel me-1"></i>Excel (.xls)</span>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">表格格式要求：</h6>
+                                    <ul class="list-unstyled mt-3">
+                                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>第一行为表头（列名）</li>
+                                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>支持的列名：</li>
+                                    </ul>
+                                    <div class="bg-light p-3 rounded-3" style="font-size: 0.85rem;">
+                                        <code>id, type, country, region, person, platform, sendDate, receiveDate, imgFront, note, tags</code>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">示例格式：</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mt-2" style="font-size: 0.8rem;">
+                                            <thead class="bg-light">
+                                                <tr><th>id</th><th>type</th><th>country</th><th>region</th><th>...</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td>PC001</td><td>收到</td><td>中国</td><td>北京</td><td>...</td></tr>
+                                                <tr><td>PC002</td><td>寄出</td><td>日本</td><td>东京</td><td>...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">注意事项：</h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="fa-solid fa-exclamation-circle text-warning me-2"></i>id 为必填字段</li>
+                                        <li class="mb-2"><i class="fa-solid fa-exclamation-circle text-warning me-2"></i>type 必须是"收到"或"寄出"</li>
+                                        <li class="mb-2"><i class="fa-solid fa-exclamation-circle text-warning me-2"></i>日期格式：YYYY-MM-DD</li>
+                                        <li class="mb-2"><i class="fa-solid fa-exclamation-circle text-warning me-2"></i>多个标签用逗号分隔</li>
+                                    </ul>
+                                </div>
+                                <button class="btn btn-outline-primary w-100 mt-4" onclick="downloadTemplate()">
+                                    <i class="fa-solid fa-file-excel me-2"></i>下载 Excel 模板
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = localStorage.getItem('adminToken');
+        let allPostcards = [];
+        let importData = [];
+
+        // 拖拽上传
+        const importZone = document.getElementById('importZone');
+        if (importZone) {
+            importZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                importZone.classList.add('dragover');
+            });
+            importZone.addEventListener('dragleave', () => {
+                importZone.classList.remove('dragover');
+            });
+            importZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                importZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    if (['xlsx', 'xls'].includes(ext)) {
+                        handleFile(file);
+                    } else {
+                        showImportStatus('error', '请上传 Excel 格式文件 (.xlsx 或 .xls)');
+                    }
+                }
+            });
+        }
+
+        function formatDate(d) {
+            if (!d) return '-';
+            return d.split('T')[0];
+        }
+
+        if (token) {
+            showAdmin();
+        }
+
+        function login(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch(`${API}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('loginError').textContent = data.error;
+                    document.getElementById('loginError').classList.remove('d-none');
+                } else {
+                    token = data.token;
+                    localStorage.setItem('adminToken', token);
+                    showAdmin();
+                }
+            })
+            .catch(() => showImportStatus('error', '登录失败，请检查网络'));
+            return false;
+        }
+
+        function showAdmin() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'block';
+            loadDashboard();
+            loadPostcards();
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            token = null;
+            location.reload();
+        }
+
+        function switchPage(page, el) {
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('postcardsPage').style.display = 'none';
+            document.getElementById('addformPage').style.display = 'none';
+            document.getElementById('importPage').style.display = 'none';
+            document.getElementById(page + 'Page').style.display = 'block';
+
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            if (el) {
+                el.classList.add('active');
+                if (page === 'addform') resetForm();
+            }
+            
+            // 切换页面时刷新数据
+            if (page === 'postcards') loadPostcards();
+            if (page === 'dashboard') loadDashboard();
+        }
+
+        function loadDashboard() {
+            fetch(`${API}/api/postcards`)
+                .then(r => r.json())
+                .then(({ data }) => {
+                    document.getElementById('statTotal').textContent = data.length;
+                    document.getElementById('statReceive').textContent = data.filter(c => c.type === '收到').length;
+                    document.getElementById('statSend').textContent = data.filter(c => c.type === '寄出').length;
+                    document.getElementById('statCountry').textContent = new Set(data.map(c => c.country || '中国')).size;
+                });
+        }
+
+        function loadPostcards() {
+            fetch(`${API}/api/postcards`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(r => r.json())
+            .then(({ data }) => {
+                allPostcards = data;
+                renderPostcards(data);
+            });
+        }
+
+        function renderPostcards(data) {
+            document.getElementById('postcardList').innerHTML = data.map(c => `
+                <tr>
+                    <td><span class="fw-semibold">${c.id}</span></td>
+                    <td><span class="badge-modern ${c.type === '收到' ? 'bg-success' : 'bg-primary'}">${c.type}</span></td>
+                    <td>${c.country || '中国'} ${c.region || ''}</td>
+                    <td>${c.person || '-'}</td>
+                    <td>${formatDate(c.receiveDate || c.sendDate)}</td>
+                    <td>
+                        <button class="btn btn-action btn-edit me-1" onclick="editCard('${c.id}')">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="deleteCard('${c.id}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterPostcards() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allPostcards.filter(c => 
+                (c.id && c.id.toLowerCase().includes(keyword)) ||
+                (c.country && c.country.toLowerCase().includes(keyword)) ||
+                (c.region && c.region.toLowerCase().includes(keyword)) ||
+                (c.person && c.person.toLowerCase().includes(keyword))
+            );
+            renderPostcards(filtered);
+        }
+
+        function savePostcard(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editId').value;
+            const body = {
+                id: document.getElementById('cardId').value,
+                type: document.getElementById('cardType').value,
+                country: document.getElementById('cardCountry').value,
+                region: document.getElementById('cardRegion').value,
+                person: document.getElementById('cardPerson').value,
+                platform: document.getElementById('cardPlatform').value,
+                sendDate: document.getElementById('cardSendDate').value,
+                receiveDate: document.getElementById('cardReceiveDate').value,
+                imgFront: document.getElementById('cardImg').value,
+                note: document.getElementById('cardNote').value,
+                tags: document.getElementById('cardTags').value.split(',').map(t => t.trim()).filter(t => t)
+            };
+
+            const url = editId ? `${API}/api/postcards/${editId}` : `${API}/api/postcards`;
+            const method = editId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify(body)
+            })
+            .then(r => r.json())
+            .then(({ error }) => {
+                if (error) {
+                    alert('保存失败: ' + error);
+                } else {
+                    showImportStatus('success', editId ? '更新成功！' : '添加成功！');
+                    resetForm();
+                    loadPostcards();
+                    loadDashboard();
+                    setTimeout(() => switchPage('postcards', null), 1000);
+                }
+            });
+            return false;
+        }
+
+        function editCard(id) {
+            fetch(`${API}/api/postcards/${id}`)
+                .then(r => r.json())
+                .then(({ data }) => {
+                    if (!data) return alert('未找到');
+                    document.getElementById('editId').value = data.id;
+                    document.getElementById('cardId').value = data.id;
+                    document.getElementById('cardType').value = data.type;
+                    document.getElementById('cardCountry').value = data.country || '';
+                    document.getElementById('cardRegion').value = data.region || '';
+                    document.getElementById('cardPerson').value = data.person || '';
+                    document.getElementById('cardPlatform').value = data.platform || '';
+                    document.getElementById('cardSendDate').value = data.sendDate ? data.sendDate.split('T')[0] : '';
+                    document.getElementById('cardReceiveDate').value = data.receiveDate ? data.receiveDate.split('T')[0] : '';
+                    document.getElementById('cardImg').value = data.imgFront || '';
+                    document.getElementById('cardNote').value = data.note || '';
+                    document.getElementById('cardTags').value = Array.isArray(data.tags) ? data.tags.join(',') : '';
+                    document.getElementById('formTitle').textContent = '编辑明信片';
+                    document.getElementById('formBreadcrumb').textContent = '编辑明信片';
+                    document.getElementById('formIcon').className = 'fa-solid fa-pen-to-square me-2 text-primary';
+                    switchPage('addform', null);
+                });
+        }
+
+        function deleteCard(id) {
+            if (!confirm('确定要删除这条明信片吗？')) return;
+            fetch(`${API}/api/postcards/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(r => r.json())
+            .then(({ error }) => {
+                if (error) alert('删除失败: ' + error);
+                else {
+                    showImportStatus('success', '删除成功！');
+                    loadPostcards();
+                    loadDashboard();
+                }
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('cardId').value = '';
+            document.getElementById('cardType').value = '收到';
+            document.getElementById('cardCountry').value = '中国';
+            document.getElementById('cardRegion').value = '';
+            document.getElementById('cardPerson').value = '';
+            document.getElementById('cardPlatform').value = '';
+            document.getElementById('cardSendDate').value = '';
+            document.getElementById('cardReceiveDate').value = '';
+            document.getElementById('cardImg').value = '';
+            document.getElementById('cardNote').value = '';
+            document.getElementById('cardTags').value = '';
+            document.getElementById('formTitle').textContent = '添加新明信片';
+            document.getElementById('formBreadcrumb').textContent = '添加明信片';
+            document.getElementById('formIcon').className = 'fa-solid fa-plus-circle me-2 text-primary';
+        }
+
+        // 批量导入功能
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (['xlsx', 'xls'].includes(ext)) {
+                processExcel(file);
+            } else {
+                showImportStatus('error', '请上传 Excel 格式文件 (.xlsx 或 .xls)');
+            }
+        }
+
+        function processExcel(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // 读取第一个工作表
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { raw: false });
+                    
+                    if (jsonData.length === 0) {
+                        showImportStatus('error', '文件为空或格式不正确');
+                        return;
+                    }
+
+                    // 获取表头
+                    const headers = Object.keys(jsonData[0]);
+                    importData = jsonData.filter(row => row.id); // 过滤掉没有 id 的行
+
+                    if (importData.length === 0) {
+                        showImportStatus('error', '未找到有效数据（id 为必填字段）');
+                        return;
+                    }
+
+                    showImportStatus('info', `成功解析 ${importData.length} 条数据`);
+                    showPreview(headers, importData);
+                    document.getElementById('importActions').classList.remove('d-none');
+                    document.getElementById('importCount').textContent = `${importData.length} 条`;
+
+                } catch (error) {
+                    showImportStatus('error', '解析 Excel 文件失败: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showPreview(headers, data) {
+            const previewDiv = document.getElementById('importPreview');
+            previewDiv.classList.remove('d-none');
+
+            document.getElementById('previewHeader').innerHTML = `
+                <tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>
+            `;
+
+            const previewRows = data.slice(0, 10);
+            document.getElementById('previewBody').innerHTML = previewRows.map(row => `
+                <tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>
+            `).join('') + (data.length > 10 ? `<tr><td colspan="${headers.length}" class="text-center text-muted">... 还有 ${data.length - 10} 条数据</td></tr>` : '');
+        }
+
+        function showImportStatus(type, message) {
+            const statusDiv = document.getElementById('importStatus');
+            statusDiv.className = `import-status ${type}`;
+            statusDiv.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>${message}`;
+            statusDiv.classList.remove('d-none');
+        }
+
+        async function startImport() {
+            if (importData.length === 0) return;
+
+            const progressBar = document.getElementById('importProgress');
+            const total = importData.length;
+            let success = 0;
+            let failed = 0;
+            let errors = [];
+
+            document.getElementById('importActions').querySelector('button').disabled = true;
+
+            for (let i = 0; i < total; i++) {
+                const item = importData[i];
+                try {
+                    const response = await fetch(`${API}/api/postcards`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({
+                            id: item.id,
+                            type: item.type || '收到',
+                            country: item.country || '中国',
+                            region: item.region || '',
+                            person: item.person || '',
+                            platform: item.platform || '',
+                            sendDate: item.sendDate || '',
+                            receiveDate: item.receiveDate || '',
+                            imgFront: item.imgFront || '',
+                            note: item.note || '',
+                            tags: item.tags ? String(item.tags).split(',').map(t => t.trim()) : []
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok || result.error) {
+                        failed++;
+                        const errorMsg = result.error || `HTTP ${response.status}`;
+                        errors.push(`"${item.id}": ${errorMsg}`);
+                    } else {
+                        success++;
+                    }
+                } catch (error) {
+                    failed++;
+                    errors.push(`"${item.id}": ${error.message || '网络请求失败'}`);
+                }
+
+                progressBar.style.width = `${((i + 1) / total * 100)}%`;
+            }
+
+            // 显示导入结果
+            if (failed > 0) {
+                const maxShow = 10;
+                const errorHtml = errors.length > maxShow 
+                    ? errors.slice(0, maxShow).join('<br>') + `<br><br>... 还有 ${errors.length - maxShow} 个错误`
+                    : errors.join('<br>');
+                showImportStatus('error', 
+                    `<strong>导入完成</strong><br>` +
+                    `成功: ${success} 条 | 失败: ${failed} 条<br><br>` +
+                    `<strong>失败详情：</strong><br>` +
+                    `<div style="margin-top:8px;font-size:0.9em;max-height:200px;overflow-y:auto;">${errorHtml}</div>`
+                );
+                // 有错误时延长显示时间
+                setTimeout(() => {
+                    importData = [];
+                    document.getElementById('importPreview').classList.add('d-none');
+                    document.getElementById('importFile').value = '';
+                    progressBar.style.width = '0%';
+                    document.getElementById('importActions').querySelector('button').disabled = false;
+                }, 10000);
+            } else {
+                showImportStatus('success', `<strong>导入成功！</strong>全部 ${success} 条数据已导入。`);
+                setTimeout(() => {
+                    importData = [];
+                    document.getElementById('importPreview').classList.add('d-none');
+                    document.getElementById('importFile').value = '';
+                    progressBar.style.width = '0%';
+                    document.getElementById('importActions').querySelector('button').disabled = false;
+                }, 3000);
+            }
+            document.getElementById('importActions').classList.add('d-none');
+            
+            loadPostcards();
+            loadDashboard();
+        }
+
+        function cancelImport() {
+            importData = [];
+            document.getElementById('importPreview').classList.add('d-none');
+            document.getElementById('importActions').classList.add('d-none');
+            document.getElementById('importStatus').classList.add('d-none');
+            document.getElementById('importFile').value = '';
+            document.getElementById('importProgress').style.width = '0%';
+        }
+
+        function downloadTemplate() {
+            const templateData = [
+                { id: 'PC001', type: '收到', country: '中国', region: '北京', person: '张三', platform: 'Postcrossing', sendDate: '2024-01-01', receiveDate: '2024-01-15', imgFront: 'https://example.com/img1.jpg', note: '测试备注', tags: '风景,建筑' },
+                { id: 'PC002', type: '寄出', country: '日本', region: '东京', person: '李四', platform: '个人交换', sendDate: '2024-02-01', receiveDate: '2024-02-20', imgFront: 'https://example.com/img2.jpg', note: '测试备注2', tags: '美食,动漫' }
+            ];
+
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '明信片');
+            XLSX.writeFile(wb, '明信片导入模板.xlsx');
+        }
+    </script>
+</body>
+</html>

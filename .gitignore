@@ -1,0 +1,9 @@
+# 依赖
+node_modules/
+
+# 环境变量（包含数据库密码）
+.env
+
+# 系统文件
+.DS_Store
+Thumbs.db

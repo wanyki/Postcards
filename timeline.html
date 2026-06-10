@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日期筛选 📅</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #2ec4b6;
+            --info: #3a86ff;
+            --warning: #ff9f1c;
+            --bg: #f0f2f5;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #2b2d42;
+            padding-bottom: 50px;
+        }
+
+        /* 顶部统计卡片 - 与 archive 一致 */
+        .stat-container {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0 25px;
+        }
+
+        @media (max-width: 768px) {
+            .stat-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .stat-icon {
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        .stat-info .label { font-size: 0.7rem; color: #8d99ae; font-weight: 600; text-transform: uppercase; }
+        .stat-info .value { font-size: 1.3rem; font-weight: 800; display: block; }
+
+        /* 主体布局 - 与 archive 一致 */
+        .main-grid { display: flex; gap: 24px; align-items: flex-start; }
+        .content-left { flex: 1; min-width: 0; }
+        .sidebar-right { width: 340px; flex-shrink: 0; position: sticky; top: 20px; }
+
+        @media (max-width: 992px) {
+            .main-grid { flex-direction: column; }
+            .sidebar-right {
+                width: 100%;
+                position: static;
+                order: -1;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* 筛选器卡片 - 与 archive 一致 */
+        .filter-card {
+            background: #fff; border-radius: 24px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02);
+        }
+        .filter-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 20px; color: #1a1c2c; }
+        .form-label { font-weight: 700; font-size: 0.8rem; color: #4a4e69; margin-bottom: 6px; }
+        .form-control, .form-select {
+            border-radius: 12px; border: 1px solid #edf2f7; background: #f8fafc;
+            padding: 10px 15px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .form-control:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+
+        /* 快捷按钮 */
+        .btn-quick {
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .btn-quick:hover, .btn-quick.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* 重置按钮 - 与 archive 一致 */
+        .btn-reset-large {
+            background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;
+            padding: 12px; border-radius: 14px; font-weight: 700; width: 100%;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-reset-large:hover { background: #fee2e2; color: #ef476f; border-color: #fecaca; }
+
+        /* 图表卡片 */
+        .chart-card {
+            background: white; border-radius: 24px; padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+
+        /* 数据预览表格 */
+        .preview-table-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .preview-table { margin: 0; }
+
+        .preview-table thead th {
+            background: #f8fafc;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #8d99ae;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #edf2f7;
+            white-space: nowrap;
+        }
+
+        .preview-table tbody td {
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .preview-table tbody tr:hover { background: #f8fafc; }
+        .preview-table tbody tr:last-child td { border-bottom: none; }
+
+        .type-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: white;
+        }
+        .type-receive { background: var(--success); }
+        .type-send { background: var(--info); }
+
+        .card-thumb {
+            width: 50px; height: 36px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card-thumb:hover {
+            transform: scale(2.5);
+            z-index: 100;
+            position: relative;
+        }
+
+        /* 加载更多按钮 - 与 archive 一致 */
+        .btn-load-more {
+            background: white; color: var(--primary); border: 2px solid var(--primary);
+            padding: 12px 40px; border-radius: 15px; font-weight: 700; transition: all 0.2s;
+        }
+        .btn-load-more:hover { background: var(--primary); color: white; }
+
+        /* 无结果提示 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8d99ae;
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.4; }
+        .empty-state p { font-size: 1rem; font-weight: 600; }
+
+        /* 加载动画 - 与 index 一致 */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(248, 249, 250, 0.98);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .loader-icon-container { position: relative; width: 80px; height: 80px; margin-bottom: 30px; }
+        .world-icon {
+            font-size: 3rem; color: #e2e8f0;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .plane-icon {
+            position: absolute; font-size: 2rem; color: var(--primary);
+            top: 0; left: 0; animation: flight 2.5s infinite linear;
+        }
+        .loading-text {
+            font-weight: 700; color: #64748b; letter-spacing: 1px;
+            animation: pulse-text 1.5s infinite ease-in-out;
+        }
+        .loading-bar-container {
+            width: 200px; height: 4px; background: #e2e8f0;
+            border-radius: 10px; margin-top: 15px; overflow: hidden;
+        }
+        .loading-bar {
+            height: 100%; width: 50%; background: var(--primary);
+            border-radius: 10px; animation: loading-slide 1.5s infinite ease-in-out;
+        }
+
+        @keyframes flight {
+            0% { transform: translate(10px, 40px) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translate(60px, -20px) rotate(-45deg); opacity: 0; }
+        }
+        @keyframes loading-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        @keyframes pulse-text {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        [v-cloak] { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="container-fluid px-2 px-md-4 px-lg-5" v-cloak>
+
+    <div v-if="loading" class="loading-overlay">
+        <div class="loader-icon-container">
+            <i class="fa-solid fa-earth-asia world-icon"></i>
+            <i class="fa-solid fa-paper-plane plane-icon"></i>
+        </div>
+        <div class="loading-text">正在加载数据...</div>
+        <div class="loading-bar-container"><div class="loading-bar"></div></div>
+    </div>
+
+    <div v-else>
+        <!-- 顶部统计 - 与 archive 完全一致 -->
+        <div class="stat-container">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(67, 97, 238, 0.1); color: var(--primary);"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="stat-info"><span class="label">Total</span><span class="value">{{ filteredCards.length }}</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(46, 196, 182, 0.1); color: var(--success);"><i class="fa-solid fa-inbox"></i></div>
+                <div class="stat-info"><span class="label">Received</span><span class="value">{{ rangeStats.receiveCount }}</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(58, 134, 255, 0.1); color: var(--info);"><i class="fa-solid fa-paper-plane"></i></div>
+                <div class="stat-info"><span class="label">Sent</span><span class="value">{{ rangeStats.sendCount }}</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(255, 159, 28, 0.1); color: var(--warning);"><i class="fa-solid fa-earth-asia"></i></div>
+                <div class="stat-info"><span class="label">Regions</span><span class="value">{{ rangeStats.regionCount }}</span></div>
+            </div>
+        </div>
+
+        <!-- 左右布局 -->
+        <div class="main-grid">
+            <div class="content-left">
+                <!-- 趋势图 -->
+                <div class="chart-card">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-column me-2 text-primary"></i>分布趋势</h5>
+                    <div id="chart-trend" style="width: 100%; height: 300px;"></div>
+                </div>
+
+                <!-- 标题行 -->
+                <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+                    <h4 class="fw-bold m-0"><i class="fa-solid fa-table me-2"></i>数据预览</h4>
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="index.html" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3">
+                            <i class="fa-solid fa-images me-1"></i>画廊
+                        </a>
+                        <small class="text-muted fw-normal">{{ dateRangeLabel }}</small>
+                    </div>
+                </div>
+
+                <!-- 空状态 -->
+                <div v-if="filteredCards.length === 0" class="empty-state" style="background: white; border-radius: 24px;">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <p>该日期范围内没有匹配的明信片</p>
+                </div>
+
+                <!-- 数据表格 -->
+                <div v-else class="preview-table-card">
+                    <div class="table-responsive">
+                        <table class="preview-table table">
+                            <thead>
+                                <tr>
+                                    <th>预览</th>
+                                    <th>编号</th>
+                                    <th>类型</th>
+                                    <th>地区</th>
+                                    <th>寄出日期</th>
+                                    <th>收到日期</th>
+                                    <th>漂流天数</th>
+                                    <th>片友</th>
+                                    <th>平台</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="card in displayedCards" :key="card.id">
+                                    <td>
+                                        <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank">
+                                            <img :src="card.imgFront + '?t=' + Date.now()" class="card-thumb" loading="lazy">
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none fw-bold" style="color: var(--primary); font-size: 0.82rem;">
+                                            {{ card.id }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge" :class="card.type === '收到' ? 'type-receive' : 'type-send'">{{ card.type }}</span>
+                                    </td>
+                                    <td style="max-width: 120px;" class="text-truncate">{{ card.region || card.country || '—' }}</td>
+                                    <td class="text-nowrap">{{ card.sendDate || '—' }}</td>
+                                    <td class="text-nowrap">{{ card.receiveDate || '—' }}</td>
+                                    <td>
+                                        <span v-if="card.sendDate && card.receiveDate" class="fw-bold" style="font-size: 0.85rem;">{{ getDuration(card) }} 天</span>
+                                        <span v-else class="text-muted">—</span>
+                                    </td>
+                                    <td>{{ card.person || '—' }}</td>
+                                    <td>{{ card.platform || '—' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 加载更多 -->
+                <div v-if="displayCount < filteredCards.length" class="text-center mt-5 mb-5">
+                    <button class="btn btn-load-more shadow-sm" @click="displayCount += 20">加载更多精彩</button>
+                </div>
+            </div>
+
+            <!-- 右侧筛选栏 - 与 archive 一致 -->
+            <div class="sidebar-right">
+                <div class="filter-card shadow-sm">
+                    <div class="filter-title"><i class="fa-solid fa-filter me-2 text-primary"></i>日期筛选</div>
+                    <div class="row g-3">
+                        <!-- 快捷按钮 -->
+                        <div class="col-12">
+                            <label class="form-label">快捷选择</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button class="btn btn-quick" :class="{active: activePreset === '7d'}" @click="applyPreset('7d')">近7天</button>
+                                <button class="btn btn-quick" :class="{active: activePreset === '30d'}" @click="applyPreset('30d')">近30天</button>
+                                <button class="btn btn-quick" :class="{active: activePreset === '90d'}" @click="applyPreset('90d')">近90天</button>
+                                <button class="btn btn-quick" :class="{active: activePreset === '6m'}" @click="applyPreset('6m')">近半年</button>
+                                <button class="btn btn-quick" :class="{active: activePreset === '1y'}" @click="applyPreset('1y')">近一年</button>
+                                <button class="btn btn-quick" :class="{active: activePreset === 'all'}" @click="applyPreset('all')">全部</button>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">开始日期</label>
+                            <input v-model="startDate" type="date" class="form-control" @change="clearPreset">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">结束日期</label>
+                            <input v-model="endDate" type="date" class="form-control" @change="clearPreset">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">日期字段</label>
+                            <select v-model="dateField" class="form-select">
+                                <option value="receiveDate">📥 收到日期</option>
+                                <option value="sendDate">📤 寄出日期</option>
+                                <option value="either">📅 任一日期</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">收寄状态</label>
+                            <select v-model="filterType" class="form-select">
+                                <option value="">全部</option>
+                                <option value="收到">📥 收到</option>
+                                <option value="寄出">📤 寄出</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 mt-4 pt-3 border-top">
+                            <button class="btn btn-reset-large" @click="resetFilters">
+                                <i class="fa-solid fa-arrows-rotate"></i> 重置所有筛选
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+
+<script>
+    // API 基础地址 - 部署时修改为你的服务器地址
+    const API_BASE = window.location.origin;
+
+    new Vue({
+        el: '#app',
+        data: {
+            postcards: [],
+            loading: true,
+            startDate: '',
+            endDate: '',
+            dateField: 'receiveDate',
+            filterType: '',
+            displayCount: 20,
+            activePreset: '',
+            trendChart: null
+        },
+        computed: {
+            filteredCards() {
+                let results = this.postcards.filter(c => {
+                    if (this.filterType && c.type !== this.filterType) return false;
+                    if (!this.startDate && !this.endDate) return true;
+
+                    const cardSend = c.sendDate || '';
+                    const cardReceive = c.receiveDate || '';
+
+                    if (this.dateField === 'either') {
+                        return (cardSend && this.inRange(cardSend)) || (cardReceive && this.inRange(cardReceive));
+                    }
+
+                    const targetDate = this.dateField === 'sendDate' ? cardSend : cardReceive;
+                    return targetDate && this.inRange(targetDate);
+                });
+
+                results.sort((a, b) => {
+                    const dA = new Date(a.receiveDate || a.sendDate || 0);
+                    const dB = new Date(b.receiveDate || b.sendDate || 0);
+                    return dB - dA;
+                });
+
+                return results;
+            },
+            displayedCards() {
+                return this.filteredCards.slice(0, this.displayCount);
+            },
+            rangeStats() {
+                const cards = this.filteredCards;
+                const receiveCount = cards.filter(c => c.type === '收到').length;
+                const regions = new Set(cards.map(c => c.country || c.region || '未知'));
+                return {
+                    receiveCount,
+                    sendCount: cards.length - receiveCount,
+                    regionCount: regions.size
+                };
+            },
+            dateRangeLabel() {
+                if (this.startDate && this.endDate) return `${this.startDate} ~ ${this.endDate}`;
+                if (this.startDate) return `${this.startDate} 起`;
+                if (this.endDate) return `至 ${this.endDate}`;
+                return '全部日期';
+            }
+        },
+        watch: {
+            filteredCards() {
+                this.displayCount = 20;
+                this.$nextTick(() => this.updateTrendChart());
+            }
+        },
+        mounted() {
+            this.fetchData();
+            window.addEventListener('resize', () => {
+                if (this.trendChart) this.trendChart.resize();
+            });
+        },
+        methods: {
+            inRange(dateStr) {
+                if (!dateStr) return false;
+                if (this.startDate && dateStr < this.startDate) return false;
+                if (this.endDate && dateStr > this.endDate) return false;
+                return true;
+            },
+            getDuration(card) {
+                if (!card.sendDate || !card.receiveDate) return null;
+                const diff = Math.floor((new Date(card.receiveDate) - new Date(card.sendDate)) / (1000 * 60 * 60 * 24));
+                return diff >= 0 ? diff : 0;
+            },
+            applyPreset(preset) {
+                this.activePreset = preset;
+                const today = new Date();
+                const end = today.toISOString().split('T')[0];
+
+                if (preset === 'all') {
+                    this.startDate = '';
+                    this.endDate = '';
+                    return;
+                }
+
+                const days = { '7d': 7, '30d': 30, '90d': 90, '6m': 180, '1y': 365 };
+                const d = new Date(today);
+                d.setDate(d.getDate() - (days[preset] || 0));
+                this.startDate = d.toISOString().split('T')[0];
+                this.endDate = end;
+            },
+            clearPreset() {
+                this.activePreset = '';
+            },
+            resetFilters() {
+                this.startDate = '';
+                this.endDate = '';
+                this.dateField = 'receiveDate';
+                this.filterType = '';
+                this.activePreset = '';
+                this.displayCount = 20;
+            },
+            async fetchData() {
+                try {
+                    // 从自建 API 获取数据
+                    const response = await fetch(`${API_BASE}/api/postcards`);
+                    const { data, error } = await response.json();
+
+                    if (error) throw new Error(error);
+
+                    this.postcards = data.map(item => {
+                        let tags = item.tags;
+                        if (typeof tags === 'string') {
+                            tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
+                        } else if (!tags) tags = [];
+
+                        return {
+                            ...item,
+                            id: item.id,
+                            type: item.type,
+                            country: item.country,
+                            region: item.region,
+                            note: item.note,
+                            tags: tags,
+                            imgFront: item.imgFront || item.imgfront || item.image_path,
+                            sendDate: item.sendDate || item.senddate || item.send_date,
+                            receiveDate: item.receiveDate || item.receivedate || item.receive_date,
+                            person: item.person,
+                            platform: item.platform
+                        };
+                    });
+
+                    this.loading = false;
+                    this.$nextTick(() => this.initTrendChart());
+
+                } catch (e) {
+                    console.error('Data Load Error:', e);
+                    this.loading = false;
+                }
+            },
+            initTrendChart() {
+                const dom = document.getElementById('chart-trend');
+                if (!dom) return;
+                this.trendChart = echarts.init(dom);
+                this.updateTrendChart();
+            },
+            updateTrendChart() {
+                if (!this.trendChart) return;
+
+                const monthMap = {};
+                this.filteredCards.forEach(c => {
+                    const d = c.receiveDate || c.sendDate;
+                    if (!d) return;
+                    const m = d.substring(0, 7);
+                    if (!monthMap[m]) monthMap[m] = { send: 0, receive: 0 };
+                    c.type === '收到' ? monthMap[m].receive++ : monthMap[m].send++;
+                });
+
+                const months = Object.keys(monthMap).sort();
+
+                this.trendChart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    legend: { bottom: 0 },
+                    grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+                    xAxis: { type: 'category', data: months },
+                    yAxis: { type: 'value', minInterval: 1 },
+                    series: [
+                        {
+                            name: '收到', type: 'bar',
+                            data: months.map(m => monthMap[m].receive),
+                            itemStyle: { color: '#2ec4b6', borderRadius: [4, 4, 0, 0] }
+                        },
+                        {
+                            name: '寄出', type: 'bar',
+                            data: months.map(m => monthMap[m].send),
+                            itemStyle: { color: '#4361ee', borderRadius: [4, 4, 0, 0] }
+                        }
+                    ],
+                    graphic: months.length === 0 ? [{
+                        type: 'text', left: 'center', top: 'middle',
+                        style: { text: '暂无数据', fill: '#aaa', fontSize: 14 }
+                    }] : []
+                }, true);
+            }
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        const dom = document.getElementById('chart-trend');
+        if (dom) {
+            const chart = echarts.getInstanceByDom(dom);
+            if (chart) chart.resize();
+        }
+    });
+</script>
+</body>
+</html>
