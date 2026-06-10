@@ -14,10 +14,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 安全中间件（禁用CSP以便admin页面使用内联脚本）
-app.use(helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false
-}));
+// app.use(helmet({
+//     contentSecurityPolicy: false,
+//     crossOriginEmbedderPolicy: false,
+//     crossOriginResourcePolicy: false
+// }));
 
 // CORS 配置
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
@@ -66,7 +67,17 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务 - 将上级目录作为静态文件目录
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '..'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.woff2')) {
+            res.setHeader('Content-Type', 'font/woff2');
+        } else if (filePath.endsWith('.woff')) {
+            res.setHeader('Content-Type', 'font/woff');
+        } else if (filePath.endsWith('.ttf')) {
+            res.setHeader('Content-Type', 'font/ttf');
+        }
+    }
+}));
 
 // 创建 MySQL 连接池
 const pool = mysql.createPool({
