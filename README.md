@@ -4,6 +4,8 @@
 
 > 📖 **部署文档**：详细的部署教程请查看 [DeployDoc/DEPLOY.md](./DeployDoc/DEPLOY.md)
 
+> 📋 **更新日志**：查看 [CHANGELOG.md](./CHANGELOG.md) 了解版本更新内容
+
 > 整个项目是个人学习摸索出来的，如果部署在服务器请谨慎，可能会有漏洞，不对安全性进行保证
 ## ✨ 功能特性
 
@@ -47,8 +49,10 @@ Postcards/
 ├── admin.html          # 管理后台页面
 ├── app.js              # 前端主逻辑
 ├── cityData.js         # 中国城市数据
+├── libs/               # 本地化第三方库
 ├── .gitignore          # Git 忽略配置
 ├── README.md           # 项目说明
+├── CHANGELOG.md        # 更新日志
 ├── DeployDoc/          # 部署文档目录
 │   └── DEPLOY.md       # 部署文档
 └── server/             # 后端服务
