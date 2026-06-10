@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📮</text></svg>">
     <title>我的明信片足迹 📮</title>
     <link href="libs/bootstrap.min.css" rel="stylesheet">
     <link href="libs/font-awesome.min.css" rel="stylesheet">
@@ -194,7 +195,7 @@
                     <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank" class="text-decoration-none text-reset">
                         <div class="postcard-item shadow-sm" @mouseenter="highlightMapRegion(card)" @mouseleave="downplayMapRegion">
                             <div class="card-tag" :style="{background: card.type=='收到'?'var(--success)':'var(--info)'}">{{ card.type }}</div>
-                            <img :src="card.imgFront + '?t=' + new Date().getTime()" class="postcard-img" loading="lazy">
+                            <img :src="card.imgFront" class="postcard-img" loading="lazy">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div class="flex-grow-1 min-width-0">

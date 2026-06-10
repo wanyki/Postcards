@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.1.1] - 2026-06-10
+
+### Fixed - 图片加载优化
+
+#### 移除图片时间戳
+移除图片 URL 中的时间戳参数，恢复浏览器缓存机制，提升图片加载速度。
+
+**问题原因：**
+```javascript
+// 之前：每次加载都生成新URL，浏览器缓存失效
+card.imgFront + '?t=' + new Date().getTime()
+```
+
+**修复后：**
+```javascript
+// 直接使用原URL，浏览器会缓存
+card.imgFront
+```
+
+**修改的文件：**
+- `index.html` - 移除图片时间戳
+- `detail.html` - 移除图片时间戳
+- `timeline.html` - 移除图片时间戳
+
+#### 其他修复
+- 添加 favicon，消除 404 错误
+
+---
+
 ## [1.1.0] - 2026-06-10
 
 ### Changed - 性能优化

@@ -321,7 +321,7 @@
                                 <tr v-for="card in displayedCards" :key="card.id">
                                     <td>
                                         <a :href="'detail.html?id=' + encodeURIComponent(card.id)" target="_blank">
-                                            <img :src="card.imgFront + '?t=' + Date.now()" class="card-thumb" loading="lazy">
+                                            <img :src="card.imgFront" class="card-thumb" loading="lazy">
                                         </a>
                                     </td>
                                     <td>
