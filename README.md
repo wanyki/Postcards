@@ -2,7 +2,7 @@
 
 > **“每一张明信片，都是一次跨越时空的握手。”**
 
-> 📖 **部署文档**：详细的服务器部署教程请查看 [DeployDoc/DEPLOY.md](./DeployDoc/DEPLOY.md)
+> 📖 **部署文档**：详细的部署教程请查看 [DeploymentDoc/DEPLOYMENT.md](./DeploymentDoc/DEPLOYMENT.md)
 > 
 > 🌿 **服务器部署版本**：`cloud-server` 分支包含完整的服务器端部署代码（Node.js + MySQL）
 
