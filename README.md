@@ -2,6 +2,10 @@
 
 > **“每一张明信片，都是一次跨越时空的握手。”**
 
+> 📖 **部署文档**：详细的服务器部署教程请查看 [DeployDoc/DEPLOY.md](./DeployDoc/DEPLOY.md)
+> 
+> 🌿 **服务器部署版本**：`cloud-server` 分支包含完整的服务器端部署代码（Node.js + MySQL）
+
 ### 🌟 初衷 (About)
 
 2025年12月7日，我第一次接触明信片，从此便深深着迷于那张方寸纸片背后的温度。随着收发数量的日益增长，为了更好地珍藏这些来自世界各地的记忆，我决定搭建这个**个人明信片数字化收集册**。
@@ -44,13 +48,31 @@
 
 ------
 
-### 📦 部署文档
+### 📦 部署说明
+
+本项目提供两种部署方式：
+
+#### 方式一：Vercel + Supabase（推荐，免费）
 
 详细的部署指南请查看 [DEPLOYMENT.md](./DeploymentDoc/DEPLOYMENT.md)，包含：
 - Supabase 数据库配置
 - 图片托管方案
 - Vercel 部署流程
 - 本地测试方法
+
+#### 方式二：自有服务器部署（Node.js + MySQL）
+
+切换到 `cloud-server` 分支获取服务器部署版本：
+
+```bash
+git checkout cloud-server
+```
+
+详细的服务器部署教程请查看 [DeployDoc/DEPLOY.md](./DeployDoc/DEPLOY.md)，包含：
+- 宝塔面板部署教程
+- 手动部署教程
+- 数据库配置
+- 安全配置
 
 ------
 
