@@ -47,12 +47,14 @@
 ```bash
 # 数据库配置
 DB_HOST=localhost
+#如果测试的话，应该填写公网IP
 DB_PORT=3306
+#要确保3306端口放开
 DB_USER=postcard
 DB_PASSWORD=你的数据库密码
 DB_NAME=postcard
 
-# 服务端口
+# 服务端口(同样确认端口开放)
 PORT=3000
 
 # JWT 密钥（请修改为随机字符串）
@@ -64,6 +66,8 @@ JWT_EXPIRES_IN=24h
 ```
 
 然后将此项目中这些文件上传至阿里云服务器，
+这里仔细看一下，有一些文件是不需要上传的，在本地运行就行
+例如create-admin.js和migrate.js以及一些其他文件无需上传
 ```
 根目录/
 ├── server/
@@ -79,8 +83,11 @@ JWT_EXPIRES_IN=24h
 ├── dashboard.html
 ├── detail.html
 ├── index.html
-└── timeline.html
+├── timeline.html
+├──footer-loader.js
+└── footer.html
 ```
+footer-loader.js和footer.html用来放置备案号之类，设计的不是很好看，不需要可以直接删除
 一般上传至![alt text](image-2.png)
 ### 5. 创建 Node 项目
 

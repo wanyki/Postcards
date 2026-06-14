@@ -534,6 +534,18 @@
             transition: width 0.3s ease;
         }
 
+        /* 底部备案 */
+        body > .site-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: 0;
+            z-index: 99;
+            background: #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+        }
+
         /* 响应式 */
         @media (max-width: 768px) {
             .sidebar {
@@ -567,6 +579,10 @@
             .sidebar-footer {
                 position: static;
                 margin-top: 16px;
+            }
+
+            body > .site-footer {
+                left: 0;
             }
         }
     </style>
@@ -1317,5 +1333,6 @@
             XLSX.writeFile(wb, '明信片导入模板.xlsx');
         }
     </script>
+    <script src="footer-loader.js"></script>
 </body>
 </html>
