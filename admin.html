@@ -291,6 +291,185 @@
             padding: 24px;
         }
 
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+            align-items: start;
+        }
+
+        .dashboard-card {
+            height: auto;
+        }
+
+        .dashboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .dashboard-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .dashboard-list-item:hover {
+            transform: translateX(3px);
+            background: #f8fafc;
+        }
+
+        .dashboard-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .dashboard-title {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .dashboard-meta {
+            color: #64748b;
+            font-size: 0.86rem;
+            margin-top: 4px;
+        }
+
+        .platform-pie-wrap {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .platform-pie {
+            position: relative;
+            width: 180px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: conic-gradient(#6366f1 0 100%);
+            box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06), 0 18px 35px rgba(15,23,42,0.12);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .platform-pie:hover {
+            transform: scale(1.04) rotate(2deg);
+            box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06), 0 24px 45px rgba(99,102,241,0.22);
+        }
+
+        .platform-pie::after {
+            content: attr(data-total) "张";
+            position: absolute;
+            inset: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: white;
+            color: #1e293b;
+            font-weight: 800;
+            font-size: 1.35rem;
+            box-shadow: 0 0 0 1px #e2e8f0;
+        }
+
+        .platform-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .platform-legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .platform-legend-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99,102,241,0.35);
+            background: #fff;
+        }
+
+        .legend-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+            font-weight: 650;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+        }
+
+        .trend-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .trend-bar span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+            transition: width 0.25s ease;
+        }
+
+        .rank-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .rank-bar span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #10b981, #6366f1);
+            transition: width 0.25s ease;
+        }
+
+        .empty-state {
+            color: #94a3b8;
+            font-size: 0.92rem;
+            padding: 8px 0;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .platform-pie-wrap {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            .platform-legend {
+                width: 100%;
+            }
+        }
+
         /* 表格样式 */
         .table-modern {
             margin: 0;
@@ -672,6 +851,40 @@
                         </div>
                     </div>
                 </div>
+                <div class="dashboard-grid">
+                    <div class="content-card dashboard-card">
+                            <div class="card-header-custom">
+                                <h5><i class="fa-solid fa-ranking-star me-2 text-primary"></i>国家/地区排行 Top 5</h5>
+                            </div>
+                            <div class="card-body-custom">
+                                <div id="regionRanking" class="dashboard-list"></div>
+                            </div>
+                    </div>
+                    <div class="content-card dashboard-card">
+                            <div class="card-header-custom">
+                                <h5><i class="fa-solid fa-chart-simple me-2 text-primary"></i>平台分布</h5>
+                            </div>
+                            <div class="card-body-custom">
+                                <div id="platformStats"></div>
+                        </div>
+                    </div>
+                    <div class="content-card dashboard-card">
+                            <div class="card-header-custom">
+                                <h5><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>最近动态</h5>
+                            </div>
+                            <div class="card-body-custom">
+                                <div id="recentPostcards" class="dashboard-list"></div>
+                            </div>
+                    </div>
+                    <div class="content-card dashboard-card">
+                            <div class="card-header-custom">
+                                <h5><i class="fa-solid fa-chart-column me-2 text-primary"></i>近六月收寄趋势</h5>
+                            </div>
+                            <div class="card-body-custom">
+                                <div id="monthlyTrend" class="dashboard-list"></div>
+                            </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 明信片列表页 -->
@@ -726,12 +939,12 @@
 
                 <div class="content-card">
                     <div class="card-body-custom">
-                        <form onsubmit="return savePostcard(event)">
+                        <form onsubmit="return savePostcard(event)" autocomplete="off">
                             <input type="hidden" id="editId">
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label class="form-label-modern">编号 <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control form-control-modern" id="cardId" required placeholder="输入明信片编号">
+                                    <input type="text" class="form-control form-control-modern" id="cardId" name="postcard-card-id" required placeholder="输入明信片编号" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="updateDefaultImageUrl()">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-modern">类型 <span class="text-danger">*</span></label>
@@ -742,19 +955,25 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-modern">国家</label>
-                                    <input type="text" class="form-control form-control-modern" id="cardCountry" value="中国" placeholder="输入国家">
+                                    <input type="text" class="form-control form-control-modern" id="cardCountry" name="postcard-country" value="中国" placeholder="输入国家" autocomplete="off">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-modern">地区</label>
-                                    <input type="text" class="form-control form-control-modern" id="cardRegion" placeholder="输入地区">
+                                    <input type="text" class="form-control form-control-modern" id="cardRegion" name="postcard-region" placeholder="输入地区" autocomplete="off">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-modern">人物</label>
-                                    <input type="text" class="form-control form-control-modern" id="cardPerson" placeholder="输入人物名称">
+                                    <input type="text" class="form-control form-control-modern" id="cardPerson" name="postcard-person" placeholder="输入人物名称" autocomplete="off">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-modern">平台</label>
-                                    <input type="text" class="form-control form-control-modern" id="cardPlatform" placeholder="输入来源平台">
+                                    <select class="form-select form-select-modern" id="cardPlatform" onchange="toggleCustomPlatform()">
+                                        <option value="Post-Hi">Post-Hi</option>
+                                        <option value="Manyour">Manyour</option>
+                                        <option value="Postcrossing">Postcrossing</option>
+                                        <option value="__custom">自定义</option>
+                                    </select>
+                                    <input type="text" class="form-control form-control-modern mt-2 d-none" id="cardPlatformCustom" name="postcard-platform-custom" placeholder="输入自定义平台名称" autocomplete="off">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-modern">寄出日期</label>
@@ -766,15 +985,15 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-modern">图片链接</label>
-                                    <input type="text" class="form-control form-control-modern" id="cardImg" placeholder="输入图片URL">
+                                    <input type="text" class="form-control form-control-modern" id="cardImg" name="postcard-image-url" placeholder="https://img.yuechucard.space/CN-4324571图像面.jpg" autocomplete="off" spellcheck="false">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-modern">备注</label>
-                                    <textarea class="form-control form-control-modern" id="cardNote" rows="4" placeholder="输入备注信息"></textarea>
+                                    <textarea class="form-control form-control-modern" id="cardNote" name="postcard-note" rows="4" placeholder="输入备注信息" autocomplete="off"></textarea>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-modern">标签 <small class="text-muted">（逗号分隔）</small></label>
-                                    <input type="text" class="form-control form-control-modern" id="cardTags" placeholder="风景,建筑,美食">
+                                    <input type="text" class="form-control form-control-modern" id="cardTags" name="postcard-tags" placeholder="风景,建筑,美食" autocomplete="off">
                                 </div>
                                 <div class="col-12 mt-4">
                                     <button type="submit" class="btn btn-primary-modern me-3">
@@ -934,6 +1153,16 @@
             return d.split('T')[0];
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
         if (token) {
             showAdmin();
         }
@@ -998,11 +1227,148 @@
             fetch(`${API}/api/postcards`)
                 .then(r => r.json())
                 .then(({ data }) => {
+                    data = Array.isArray(data) ? data : [];
                     document.getElementById('statTotal').textContent = data.length;
                     document.getElementById('statReceive').textContent = data.filter(c => c.type === '收到').length;
                     document.getElementById('statSend').textContent = data.filter(c => c.type === '寄出').length;
                     document.getElementById('statCountry').textContent = new Set(data.map(c => c.country || '中国')).size;
+                    renderRegionRanking(data);
+                    renderPlatformStats(data);
+                    renderRecentPostcards(data);
+                    renderMonthlyTrend(data);
                 });
+        }
+
+        function renderRegionRanking(data) {
+            const stats = {};
+            data.forEach(card => {
+                const key = (card.region || card.country || '中国').trim();
+                if (!key) return;
+                if (!stats[key]) stats[key] = { total: 0, send: 0, receive: 0 };
+                stats[key].total++;
+                card.type === '寄出' ? stats[key].send++ : stats[key].receive++;
+            });
+
+            const ranking = Object.entries(stats)
+                .map(([name, value]) => ({ name, ...value }))
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 5);
+
+            const max = Math.max(...ranking.map(item => item.total), 1);
+            document.getElementById('regionRanking').innerHTML = ranking.length ? ranking.map((item, index) => `
+                <div>
+                    <div class="dashboard-list-item">
+                        <div>
+                            <div class="dashboard-title">${index + 1}. ${escapeHtml(item.name)}</div>
+                            <div class="dashboard-meta">收到 ${item.receive} · 寄出 ${item.send}</div>
+                        </div>
+                        <span class="badge bg-primary">${item.total}</span>
+                    </div>
+                    <div class="rank-bar"><span style="width:${Math.round(item.total / max * 100)}%"></span></div>
+                </div>
+            `).join('') : '<div class="empty-state">暂无国家/地区数据</div>';
+        }
+
+        function renderPlatformStats(data) {
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#94a3b8'];
+            const platforms = ['Post-Hi', 'Manyour', 'Postcrossing'];
+            const counts = platforms.map(platform => ({
+                name: platform,
+                count: data.filter(c => c.platform === platform).length
+            }));
+            const otherCount = data.filter(c => c.platform && !platforms.includes(c.platform)).length;
+            if (otherCount > 0) counts.push({ name: '其他平台', count: otherCount });
+            const emptyCount = data.filter(c => !c.platform).length;
+            if (emptyCount > 0) counts.push({ name: '未填写', count: emptyCount });
+
+            const total = counts.reduce((sum, item) => sum + item.count, 0);
+            if (total === 0) {
+                document.getElementById('platformStats').innerHTML = '<div class="empty-state">暂无平台数据</div>';
+                return;
+            }
+
+            let current = 0;
+            const gradient = counts.map((item, index) => {
+                const start = current;
+                const end = current + item.count / total * 360;
+                current = end;
+                return `${colors[index]} ${start}deg ${end}deg`;
+            }).join(', ');
+
+            document.getElementById('platformStats').innerHTML = `
+                <div class="platform-pie-wrap">
+                    <div class="platform-pie" style="background: conic-gradient(${gradient});" data-total="${total}" title="平台总数：${total}"></div>
+                    <div class="platform-legend">
+                        ${counts.map((item, index) => {
+                            const percent = Math.round(item.count / total * 100);
+                            return `
+                                <div class="platform-legend-item" title="${escapeHtml(item.name)}：${item.count} 张，占比 ${percent}%">
+                                    <div class="legend-name">
+                                        <span class="legend-dot" style="background:${colors[index]}"></span>
+                                        <span>${escapeHtml(item.name)}</span>
+                                    </div>
+                                    <span class="badge bg-primary">${item.count} · ${percent}%</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRecentPostcards(data) {
+            const withTime = data.map(c => ({
+                ...c,
+                displayDate: c.receiveDate || c.sendDate || '',
+                timestamp: new Date(c.receiveDate || c.sendDate || 0).getTime()
+            })).sort((a, b) => b.timestamp - a.timestamp).slice(0, 6);
+
+            document.getElementById('recentPostcards').innerHTML = withTime.length ? withTime.map(c => `
+                <div class="dashboard-list-item">
+                    <div>
+                        <div class="dashboard-title">${escapeHtml(c.id || '-')}</div>
+                        <div class="dashboard-meta">${escapeHtml(c.country || '中国')} ${escapeHtml(c.region || '')} · ${escapeHtml(c.platform || '未填写平台')}</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge-modern ${c.type === '收到' ? 'bg-success' : 'bg-primary'}">${escapeHtml(c.type || '-')}</span>
+                        <div class="dashboard-meta">${formatDate(c.displayDate)}</div>
+                    </div>
+                </div>
+            `).join('') : '<div class="empty-state">暂无明信片数据</div>';
+        }
+
+        function renderMonthlyTrend(data) {
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                months.push({ key, receive: 0, send: 0 });
+            }
+
+            data.forEach(c => {
+                const dateValue = c.receiveDate || c.sendDate;
+                if (!dateValue) return;
+                const key = String(dateValue).slice(0, 7);
+                const month = months.find(item => item.key === key);
+                if (!month) return;
+                if (c.type === '寄出') month.send += 1;
+                else month.receive += 1;
+            });
+
+            const max = Math.max(...months.map(item => item.receive + item.send), 1);
+            document.getElementById('monthlyTrend').innerHTML = months.map(item => {
+                const total = item.receive + item.send;
+                return `
+                    <div>
+                        <div class="dashboard-list-item">
+                            <div class="dashboard-title">${item.key}</div>
+                            <div class="dashboard-meta">收到 ${item.receive} · 寄出 ${item.send}</div>
+                        </div>
+                        <div class="trend-bar"><span style="width:${Math.round(total / max * 100)}%"></span></div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function loadPostcards() {
@@ -1047,19 +1413,74 @@
             renderPostcards(filtered);
         }
 
+        function generateDefaultImageUrl(cardId) {
+            const id = String(cardId || '').trim();
+            if (!id) return '';
+            return `https://img.yuechucard.space/${id}图像面.jpg`;
+        }
+
+        function updateDefaultImageUrl(force = false) {
+            const idInput = document.getElementById('cardId');
+            const imgInput = document.getElementById('cardImg');
+            const nextUrl = generateDefaultImageUrl(idInput.value);
+            const currentAutoUrl = imgInput.dataset.autoImg || '';
+            const canUpdate = force || !imgInput.value || imgInput.value === currentAutoUrl;
+
+            if (canUpdate) {
+                imgInput.value = nextUrl;
+                imgInput.dataset.autoImg = nextUrl;
+            }
+        }
+
+        const predefinedPlatforms = ['Post-Hi', 'Manyour', 'Postcrossing'];
+
+        function toggleCustomPlatform() {
+            const platformSelect = document.getElementById('cardPlatform');
+            const customInput = document.getElementById('cardPlatformCustom');
+            const isCustom = platformSelect.value === '__custom';
+            customInput.classList.toggle('d-none', !isCustom);
+            if (isCustom) customInput.focus();
+        }
+
+        function getPlatformValue() {
+            const platformSelect = document.getElementById('cardPlatform');
+            const customInput = document.getElementById('cardPlatformCustom');
+            return platformSelect.value === '__custom'
+                ? customInput.value.trim()
+                : platformSelect.value;
+        }
+
+        function setPlatformValue(platform) {
+            const platformSelect = document.getElementById('cardPlatform');
+            const customInput = document.getElementById('cardPlatformCustom');
+            const value = platform || 'Post-Hi';
+
+            if (predefinedPlatforms.includes(value)) {
+                platformSelect.value = value;
+                customInput.value = '';
+            } else {
+                platformSelect.value = '__custom';
+                customInput.value = value;
+            }
+
+            toggleCustomPlatform();
+        }
+
         function savePostcard(e) {
             e.preventDefault();
             const editId = document.getElementById('editId').value;
+            updateDefaultImageUrl();
+            const cardId = document.getElementById('cardId').value.trim();
             const body = {
-                id: document.getElementById('cardId').value,
+                id: cardId,
                 type: document.getElementById('cardType').value,
                 country: document.getElementById('cardCountry').value,
                 region: document.getElementById('cardRegion').value,
                 person: document.getElementById('cardPerson').value,
-                platform: document.getElementById('cardPlatform').value,
+                platform: getPlatformValue(),
                 sendDate: document.getElementById('cardSendDate').value,
                 receiveDate: document.getElementById('cardReceiveDate').value,
-                imgFront: document.getElementById('cardImg').value,
+                imgFront: document.getElementById('cardImg').value.trim() || generateDefaultImageUrl(cardId),
                 note: document.getElementById('cardNote').value,
                 tags: document.getElementById('cardTags').value.split(',').map(t => t.trim()).filter(t => t)
             };
@@ -1101,10 +1522,11 @@
                     document.getElementById('cardCountry').value = data.country || '';
                     document.getElementById('cardRegion').value = data.region || '';
                     document.getElementById('cardPerson').value = data.person || '';
-                    document.getElementById('cardPlatform').value = data.platform || '';
+                    setPlatformValue(data.platform || 'Post-Hi');
                     document.getElementById('cardSendDate').value = data.sendDate ? data.sendDate.split('T')[0] : '';
                     document.getElementById('cardReceiveDate').value = data.receiveDate ? data.receiveDate.split('T')[0] : '';
                     document.getElementById('cardImg').value = data.imgFront || '';
+                    document.getElementById('cardImg').dataset.autoImg = data.imgFront || '';
                     document.getElementById('cardNote').value = data.note || '';
                     document.getElementById('cardTags').value = Array.isArray(data.tags) ? data.tags.join(',') : '';
                     document.getElementById('formTitle').textContent = '编辑明信片';
@@ -1138,10 +1560,11 @@
             document.getElementById('cardCountry').value = '中国';
             document.getElementById('cardRegion').value = '';
             document.getElementById('cardPerson').value = '';
-            document.getElementById('cardPlatform').value = '';
+            setPlatformValue('Post-Hi');
             document.getElementById('cardSendDate').value = '';
             document.getElementById('cardReceiveDate').value = '';
             document.getElementById('cardImg').value = '';
+            document.getElementById('cardImg').dataset.autoImg = '';
             document.getElementById('cardNote').value = '';
             document.getElementById('cardTags').value = '';
             document.getElementById('formTitle').textContent = '添加新明信片';
