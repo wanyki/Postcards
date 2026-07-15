@@ -13,12 +13,12 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 安全中间件（禁用CSP以便admin页面使用内联脚本）
-// app.use(helmet({
-//     contentSecurityPolicy: false,
-//     crossOriginEmbedderPolicy: false,
-//     crossOriginResourcePolicy: false
-// }));
+// 安全中间件
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false
+}));
 
 // CORS 配置
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
