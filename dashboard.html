@@ -354,11 +354,9 @@
 
 <script src="libs/echarts.min.js"></script>
 <script src="libs/vue.js"></script>
+<script src="postcard-utils.js"></script>
 
 <script>
-    // API 基础地址 - 部署时修改为你的服务器地址
-    const API_BASE = window.location.origin;
-
     new Vue({
         el: '#app',
         data: {
@@ -373,14 +371,14 @@
                 const sent = total - receive;
                 let totalDays = 0, count = 0;
                 this.postcards.forEach(c => {
-                    const days = this.getDuration(c);
+                    const days = PostcardUtils.getDuration(c);
                     if (days !== null) { totalDays += days; count++; }
                 });
                 return { total, receive, sent, avgDuration: count ? Math.round(totalDays / count) : 0 };
             },
             funFacts() {
                 if (!this.postcards.length) return {};
-                let validCards = this.postcards.map(c => ({...c, _days: this.getDuration(c)})).filter(c => c._days !== null);
+                let validCards = this.postcards.map(c => ({...c, _days: PostcardUtils.getDuration(c)})).filter(c => c._days !== null);
                 validCards.sort((a,b) => b._days - a._days);
                 
                 const longest = validCards.length ? { days: validCards[0]._days, card: validCards[0] } : null;
@@ -405,42 +403,15 @@
         methods: {
             async fetchData() {
                 try {
-                    // 从自建 API 获取数据
-                    const response = await fetch(`${API_BASE}/api/postcards`);
-                    const { data, error } = await response.json();
+                    this.postcards = await PostcardUtils.fetchPostcards();
 
-                    if (error) throw new Error(error);
-
-                    this.postcards = data.map(item => {
-                        let tags = item.tags;
-                        if (typeof tags === 'string') {
-                            tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
-                        } else if (!tags) tags = [];
-
-                        return {
-                            ...item,
-                            id: item.id,
-                            type: item.type,
-                            country: item.country,
-                            region: item.region,
-                            note: item.note,
-                            tags: tags,
-                            imgFront: item.imgFront || item.imgfront || item.image_path, 
-                            sendDate: item.sendDate || item.senddate || item.send_date,
-                            receiveDate: item.receiveDate || item.receivedate || item.receive_date,
-                            person: item.person,
-                            platform: item.platform
-                        };
-                    });
-
-                    // 延迟一点点，让用户欣赏一下你的新飞机动画 :)
                     setTimeout(() => {
                         this.loading = false;
                         this.$nextTick(() => {
                             this.initCharts();
                             window.addEventListener('resize', this.resizeCharts);
                         });
-                    }, 1500); // 1.5秒动画展示时间
+                    }, 1500);
 
                 } catch (e) {
                     console.error('Data Load Error:', e);
@@ -456,13 +427,6 @@
                 if(document.getElementById('chart-platform')) this.initPlatformChart();
                 if(document.getElementById('chart-balance')) this.initBalanceChart();
                 if(document.getElementById('chart-duration')) this.initDurationChart();
-            },
-            getDuration(card) {
-                if (!card.receiveDate || !card.sendDate) return null;
-                const start = new Date(card.sendDate);
-                const end = new Date(card.receiveDate);
-                const diff = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-                return diff >= 0 ? diff : 0;
             },
             extractRegion(c) {
                 if (c.country && c.country !== '中国') return c.country;
@@ -546,7 +510,7 @@
                 this.charts.duration = chart;
                 const bins = { '0-3天': 0, '4-7天': 0, '8-14天': 0, '15-30天': 0, '30天+': 0 };
                 this.postcards.forEach(c => {
-                    const days = this.getDuration(c);
+                    const days = PostcardUtils.getDuration(c);
                     if(days === null) return;
                     if (days <= 3) bins['0-3天']++;
                     else if (days <= 7) bins['4-7天']++;

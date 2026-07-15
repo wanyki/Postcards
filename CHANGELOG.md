@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.3.0] - 2026-07-15
+
+### Changed - 代码结构优化
+
+#### 公共模块抽取
+- 提取国家中英文映射表到独立文件 `countryMap.json`，减少 `app.js` 约100行代码
+- 新增 `postcard-utils.js` 公共工具模块，统一处理数据获取和映射逻辑
+
+**postcard-utils.js 提供的方法：**
+| 方法名 | 说明 |
+|--------|------|
+| `loadCountryMap()` | 加载国家映射表 |
+| `fetchPostcards()` | 统一数据获取 |
+| `normalizePostcard()` | 统一数据映射（处理tags、字段兼容等） |
+| `getRegionKey()` | 地图区域键值获取 |
+| `extractProvince()` | 省份名称提取 |
+| `getDuration()` | 漂流天数计算 |
+
+#### 地图渲染优化
+- 优化 `updateMap()` 方法，移除完全重绘标志，改为增量更新数据
+- 复用 `PostcardUtils.getRegionKey()` 避免重复代码
+
+#### 安全中间件启用
+- 重新启用 helmet 安全中间件
+- 保持 CSP 禁用以兼容页面内联脚本
+- 启用 X-Frame-Options、X-Content-Type-Options 等安全头
+
+**修改的文件：**
+- `countryMap.json` - 新增，国家中英文映射数据
+- `postcard-utils.js` - 新增，公共数据获取和工具方法
+- `app.js` - 使用公共模块，移除内联映射表
+- `index.html` - 引入 postcard-utils.js
+- `dashboard.html` - 使用公共模块
+- `timeline.html` - 使用公共模块
+- `server/app.js` - 启用 helmet 安全中间件
+
+---
+
 ## [1.2.0] - 2026-07-14
 
 ### Changed - 管理后台体验优化

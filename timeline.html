@@ -413,11 +413,9 @@
 
 <script src="libs/echarts.min.js"></script>
 <script src="libs/vue.js"></script>
+<script src="postcard-utils.js"></script>
 
 <script>
-    // API 基础地址 - 部署时修改为你的服务器地址
-    const API_BASE = window.location.origin;
-
     new Vue({
         el: '#app',
         data: {
@@ -496,9 +494,7 @@
                 return true;
             },
             getDuration(card) {
-                if (!card.sendDate || !card.receiveDate) return null;
-                const diff = Math.floor((new Date(card.receiveDate) - new Date(card.sendDate)) / (1000 * 60 * 60 * 24));
-                return diff >= 0 ? diff : 0;
+                return PostcardUtils.getDuration(card);
             },
             applyPreset(preset) {
                 this.activePreset = preset;
@@ -530,33 +526,7 @@
             },
             async fetchData() {
                 try {
-                    // 从自建 API 获取数据
-                    const response = await fetch(`${API_BASE}/api/postcards`);
-                    const { data, error } = await response.json();
-
-                    if (error) throw new Error(error);
-
-                    this.postcards = data.map(item => {
-                        let tags = item.tags;
-                        if (typeof tags === 'string') {
-                            tags = tags.replace(/[\[\]"]/g, '').split(',').filter(t => t.trim() !== '');
-                        } else if (!tags) tags = [];
-
-                        return {
-                            ...item,
-                            id: item.id,
-                            type: item.type,
-                            country: item.country,
-                            region: item.region,
-                            note: item.note,
-                            tags: tags,
-                            imgFront: item.imgFront || item.imgfront || item.image_path,
-                            sendDate: item.sendDate || item.senddate || item.send_date,
-                            receiveDate: item.receiveDate || item.receivedate || item.receive_date,
-                            person: item.person,
-                            platform: item.platform
-                        };
-                    });
+                    this.postcards = await PostcardUtils.fetchPostcards();
 
                     this.loading = false;
                     this.$nextTick(() => this.initTrendChart());
