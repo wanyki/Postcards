@@ -1120,6 +1120,7 @@
     <script>
         const API = window.location.origin;
         let token = localStorage.getItem('adminToken');
+        let logoutTimer = null;
         let allPostcards = [];
         let importData = [];
 
@@ -1163,9 +1164,87 @@
             }[char]));
         }
 
-        if (token) {
-            showAdmin();
+        class SessionExpiredError extends Error {
+            constructor() {
+                super('登录已过期');
+                this.name = 'SessionExpiredError';
+            }
         }
+
+        function getTokenExpiresAt(value) {
+            try {
+                const payload = value.split('.')[1]
+                    .replace(/-/g, '+')
+                    .replace(/_/g, '/');
+                const paddedPayload = payload.padEnd(Math.ceil(payload.length / 4) * 4, '=');
+                const { exp } = JSON.parse(atob(paddedPayload));
+                return Number.isFinite(exp) ? exp * 1000 : 0;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        function showLogin(message = '') {
+            if (logoutTimer) {
+                clearTimeout(logoutTimer);
+                logoutTimer = null;
+            }
+            localStorage.removeItem('adminToken');
+            token = null;
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'flex';
+
+            const loginError = document.getElementById('loginError');
+            loginError.textContent = message;
+            loginError.classList.toggle('d-none', !message);
+        }
+
+        function handleSessionExpired() {
+            showLogin('登录已过期，请重新登录');
+        }
+
+        function scheduleAutomaticLogout() {
+            const remaining = getTokenExpiresAt(token) - Date.now();
+            if (remaining <= 0) {
+                handleSessionExpired();
+                return false;
+            }
+
+            if (logoutTimer) clearTimeout(logoutTimer);
+            const maxTimeout = 2147483647;
+            logoutTimer = setTimeout(() => {
+                if (remaining > maxTimeout) scheduleAutomaticLogout();
+                else handleSessionExpired();
+            }, Math.min(remaining, maxTimeout));
+            return true;
+        }
+
+        async function authenticatedFetch(url, options = {}) {
+            const headers = new Headers(options.headers || {});
+            headers.set('Authorization', 'Bearer ' + token);
+            const response = await fetch(url, { ...options, headers });
+
+            if (response.status === 401 || response.status === 403) {
+                handleSessionExpired();
+                throw new SessionExpiredError();
+            }
+            return response;
+        }
+
+        async function initializeAuth() {
+            if (!token || !scheduleAutomaticLogout()) return;
+
+            try {
+                const response = await authenticatedFetch(`${API}/api/auth/me`);
+                if (response.ok) showAdmin();
+                else handleSessionExpired();
+            } catch (error) {
+                // 网络临时不可用时仍以 JWT 的本地过期时间为准；认证失败已由 authenticatedFetch 退出登录。
+                if (!(error instanceof SessionExpiredError)) showAdmin();
+            }
+        }
+
+        initializeAuth();
 
         function login(e) {
             e.preventDefault();
@@ -1185,7 +1264,7 @@
                 } else {
                     token = data.token;
                     localStorage.setItem('adminToken', token);
-                    showAdmin();
+                    if (scheduleAutomaticLogout()) showAdmin();
                 }
             })
             .catch(() => showImportStatus('error', '登录失败，请检查网络'));
@@ -1200,9 +1279,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('adminToken');
-            token = null;
-            location.reload();
+            showLogin();
         }
 
         function switchPage(page, el) {
@@ -1488,11 +1565,10 @@
             const url = editId ? `${API}/api/postcards/${editId}` : `${API}/api/postcards`;
             const method = editId ? 'PUT' : 'POST';
 
-            fetch(url, {
+            authenticatedFetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(body)
             })
@@ -1507,6 +1583,9 @@
                     loadDashboard();
                     setTimeout(() => switchPage('postcards', null), 1000);
                 }
+            })
+            .catch(error => {
+                if (!(error instanceof SessionExpiredError)) alert('保存失败，请检查网络');
             });
             return false;
         }
@@ -1538,10 +1617,7 @@
 
         function deleteCard(id) {
             if (!confirm('确定要删除这条明信片吗？')) return;
-            fetch(`${API}/api/postcards/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token }
-            })
+            authenticatedFetch(`${API}/api/postcards/${id}`, { method: 'DELETE' })
             .then(r => r.json())
             .then(({ error }) => {
                 if (error) alert('删除失败: ' + error);
@@ -1550,6 +1626,9 @@
                     loadPostcards();
                     loadDashboard();
                 }
+            })
+            .catch(error => {
+                if (!(error instanceof SessionExpiredError)) alert('删除失败，请检查网络');
             });
         }
 
@@ -1661,11 +1740,10 @@
             for (let i = 0; i < total; i++) {
                 const item = importData[i];
                 try {
-                    const response = await fetch(`${API}/api/postcards`, {
+                    const response = await authenticatedFetch(`${API}/api/postcards`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + token
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             id: item.id,
@@ -1692,6 +1770,7 @@
                         success++;
                     }
                 } catch (error) {
+                    if (error instanceof SessionExpiredError) return;
                     failed++;
                     errors.push(`"${item.id}": ${error.message || '网络请求失败'}`);
                 }

@@ -137,7 +137,10 @@ const authenticateToken = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        return res.status(403).json({ error: '无效的访问令牌' });
+        const message = error.name === 'TokenExpiredError'
+            ? '登录已过期，请重新登录'
+            : '无效的访问令牌';
+        return res.status(401).json({ error: message });
     }
 };
 
